@@ -191,6 +191,19 @@
       "s2_i6": "Kakheti",
       "s3_i6": "Svaneti"
     },
+    "liveUpdate": {
+      "eyebrow": "What monthly care looks like",
+      "heading": "One owner message. One live update.",
+      "subtitle": "The monthly fee includes the person who turns an owner request into the version customers see.",
+      "request": "Please change cleaning from 55 to 65 GEL.",
+      "oldValue": "55 GEL",
+      "newValue": "65 GEL",
+      "editing": "Editing the price",
+      "refreshing": "Refreshing the live page",
+      "published": "Published",
+      "outcome": "The requested change is live.",
+      "replay": "Replay"
+    },
     "speed": {
       "eyebrow": "Why speed is the whole argument",
       "heading": "A tenth of a second is worth money.",
@@ -228,6 +241,20 @@
       "w7": "Backup restored",
       "w8": "New service added",
       "note": "There is no price on this page. This is about the shape of the deal, not the size of it."
+    },
+    "mobileLead": {
+      "eyebrow": "From phone visit to owner inbox",
+      "heading": "A booking does not disappear into the page.",
+      "subtitle": "Watch a customer choose a service on a phone, send the form, and arrive as a lead for the owner.",
+      "visitor": "Mobile visitor",
+      "service": "Dental cleaning",
+      "selected": "Service selected",
+      "formSent": "Booking form sent",
+      "ownerInbox": "Owner inbox",
+      "leadCreated": "New lead",
+      "outcome": "A new lead was created and delivered to the owner.",
+      "replay": "Replay",
+      "fictional": "Fictional example · number redacted"
     },
     "proof": {
       "url": "yourclinic.ge",
