@@ -31,10 +31,10 @@
     "legal": "Zemo Plato, III Array, N14, Apt. 87, Tbilisi 0163"
   },
   "landingNav": {
-    "showcase": "Watch one get built",
+    "showcase": "See the build",
     "process": "How it works",
     "faq": "Questions",
-    "cta": "Get in touch"
+    "cta": "Start a site"
   },
   "landingFooter": {
     "company": "AI NOW LLC, Tbilisi, Georgia",
@@ -43,10 +43,10 @@
     "socialHeading": "Social",
     "languageHeading": "Language",
     "contact": "Contact",
-    "sectionShowcase": "Watch one get built",
+    "sectionShowcase": "See the build",
     "sectionWork": "How it works",
     "sectionFaq": "Questions",
-    "ctaHuge": "Nothing upfront. Tell us what you sell.",
+    "ctaHuge": "Tell us what you sell",
     "copyright": "© {year} aiWEB, an aiNOW product. All rights reserved."
   },
   "product": {
@@ -60,17 +60,12 @@
       "taglineWorks": "builds",
       "typewriterWords": "website,prices,photos,forms,speed",
       "typewriterPrefill": "website",
-      "sloganCreates": "creates",
-      "sloganAds": "advertises",
-      "sloganSells": "sells",
-      "sloganManages": "manages",
-      "sloganTogether": "together",
       "ctaResults": "Watch one get built",
       "ctaCall": "Book a call",
       "commitment": "Live in 10 working days, or the first month is free. Nothing to pay upfront, and you can leave with 30 days notice.",
       "audience": "For clinics, restaurants, builders, auto services and salons in Georgia",
       "sub": "We build it in ten working days, we keep it fast, and when your prices change we change them. Nothing to pay upfront.",
-      "signedBy": "Andrew Altair. I am the one who calls you back."
+      "signedBy": "aiNOW checks this process on your data, sets it up, and shows you the result."
     },
     "work": {
       "eyebrow": "How it works",
