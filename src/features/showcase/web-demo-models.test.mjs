@@ -181,6 +181,27 @@ test('reduced motion emits only the final state and schedules nothing', () => {
   assert.equal(clock.pendingCount(), 0);
 });
 
+test('timeline exposes explicit reset and final-state callbacks for the canonical loop', () => {
+  const clock = createManualClock();
+  const emitted = [];
+  const player = createTimelinePlayer({
+    stages: LIVE_UPDATE_STAGES,
+    onStage: (stage) => emitted.push(stage),
+    setTimeoutFn: clock.setTimeoutFn,
+    clearTimeoutFn: clock.clearTimeoutFn,
+  });
+
+  player.play();
+  clock.advanceBy(2_400);
+  player.reset();
+  assert.equal(clock.pendingCount(), 0);
+  assert.equal(emitted.at(-1), 'request');
+
+  player.showFinal();
+  assert.equal(clock.pendingCount(), 0);
+  assert.equal(emitted.at(-1), 'published');
+});
+
 function createManualClock() {
   let now = 0;
   let nextId = 1;

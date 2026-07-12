@@ -121,9 +121,21 @@ export function createTimelinePlayer({
     );
   };
 
+  const reset = () => {
+    cancel();
+    if (stages.length > 0) onStage(stages[0]);
+  };
+
+  const showFinal = () => {
+    cancel();
+    if (stages.length > 0) onStage(stages[stages.length - 1]);
+  };
+
   return {
     play,
     replay: play,
     cancel,
+    reset,
+    showFinal,
   };
 }

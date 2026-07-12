@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, useReducedMotion } from 'framer-motion';
+import { Ico } from '@/components/common/Ico';
 import { SectionContainer } from '@/components/layout/SectionContainer';
+import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 import { cn } from '@/lib/utils';
 
 /* =========================================================================
@@ -51,26 +53,88 @@ const ONCE_WORK: { m: number; key: string }[] = [
 ];
 
 type Mode = 'once' | 'monthly';
+const CYCLE_MS = 6_400;
 
 export function WebPriceFlip() {
   const t = useTranslations('product.flip');
   const reduced = useReducedMotion();
   const [mode, setMode] = useState<Mode>('once');
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const stop = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }, []);
+
+  const reset = useCallback(() => {
+    stop();
+    setMode('once');
+  }, [stop]);
+
+  const play = useCallback(() => {
+    reset();
+    timersRef.current = [setTimeout(() => setMode('monthly'), 3_400)];
+  }, [reset]);
+
+  const showFinal = useCallback(() => {
+    stop();
+    setMode('monthly');
+  }, [stop]);
+
+  useEffect(() => {
+    const target = rootRef.current;
+    if (!target) return;
+    const controller = createDemoLoop({
+      target,
+      reducedMotion: Boolean(reduced),
+      threshold: 0.35,
+      cycleMs: CYCLE_MS,
+      holdMs: 2_000,
+      play,
+      showFinal,
+      reset,
+      stop,
+    });
+    controllerRef.current = controller;
+    return () => {
+      controller.cleanup();
+      if (controllerRef.current === controller) controllerRef.current = null;
+    };
+  }, [play, reduced, reset, showFinal, stop]);
+
+  const chooseMode = (next: Mode) => {
+    controllerRef.current?.takeControl();
+    setMode(next);
+  };
 
   const work = mode === 'once' ? ONCE_WORK : WORK;
 
   return (
     <SectionContainer className="py-20 md:py-28">
-      <div className="mx-auto max-w-4xl lg:ml-0">
-        <span className="text-[12px] uppercase tracking-wide text-neutral-900/40">
-          {t('eyebrow')}
-        </span>
-        <h2 className="mt-4 max-w-2xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-neutral-900 md:text-4xl">
-          {t('heading')}
-        </h2>
-        <p className="mt-3 max-w-xl text-pretty text-[15px] leading-relaxed text-[#525252]">
-          {t('subtitle')}
-        </p>
+      <div ref={rootRef} className="mx-auto min-w-0 max-w-5xl lg:ml-0">
+        <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <span className="text-[12px] uppercase tracking-wide text-neutral-900/40">
+              {t('eyebrow')}
+            </span>
+            <h2 className="mt-4 max-w-2xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-neutral-900 md:text-4xl">
+              {t('heading')}
+            </h2>
+            <p className="mt-3 max-w-xl text-pretty text-[15px] leading-relaxed text-[#525252]">
+              {t('subtitle')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => controllerRef.current?.replay()}
+            className="inline-flex min-h-11 w-fit shrink-0 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-neutral-900 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+          >
+            <Ico name="solar:refresh-bold-duotone" className="h-5 w-5" />
+            {t('replay')}
+          </button>
+        </div>
 
         {/* the switch */}
         <div className="mt-8 inline-flex rounded-full bg-[#f0f0f0] p-1">
@@ -78,15 +142,19 @@ export function WebPriceFlip() {
             <button
               key={m}
               type="button"
-              onClick={() => setMode(m)}
+              onClick={() => chooseMode(m)}
               aria-pressed={mode === m}
               className={cn(
-                'min-h-[44px] rounded-full px-6 text-[14px] font-semibold',
+                'inline-flex min-h-[44px] items-center gap-2 rounded-full px-5 text-[14px] font-semibold sm:px-6',
                 'transition-[transform,background-color,color] duration-150 ease-out',
                 'active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2',
                 mode === m ? 'bg-white text-neutral-900 shadow-[0_1px_3px_rgba(0,0,0,0.08)]' : 'text-neutral-900/50',
               )}
             >
+              <Ico
+                name={m === 'once' ? 'solar:rocket-bold-duotone' : 'solar:refresh-bold-duotone'}
+                className="h-4 w-4"
+              />
               {t(m)}
             </button>
           ))}
@@ -138,18 +206,22 @@ export function WebPriceFlip() {
           </div>
         </div>
 
-        <motion.p
+        <motion.div
           key={mode}
           initial={reduced ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
           className={cn(
-            'mt-6 max-w-xl text-pretty text-[15px] leading-relaxed',
-            mode === 'once' ? 'text-neutral-900/70' : 'text-neutral-900',
+            'mt-6 flex max-w-2xl min-w-0 items-start gap-3 rounded-2xl p-4 text-pretty text-[15px] leading-relaxed',
+            mode === 'once' ? 'bg-neutral-900/[0.04] text-neutral-900/70' : 'bg-[var(--brand)]/10 text-neutral-900',
           )}
         >
-          {t(`${mode}End`)}
-        </motion.p>
+          <Ico
+            name={mode === 'once' ? 'solar:clock-circle-bold-duotone' : 'solar:shield-check-bold-duotone'}
+            className="mt-0.5 h-5 w-5 text-[var(--brand-ink)]"
+          />
+          <p>{t(`${mode}End`)}</p>
+        </motion.div>
 
         <p className="mt-4 text-[12px] leading-relaxed text-[#737373]">{t('note')}</p>
       </div>

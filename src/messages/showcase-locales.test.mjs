@@ -2,13 +2,86 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { joinAnimatedWords } from '../features/showcase/web-build-models.mjs';
+
 const LOCALE_PATHS = {
   en: new URL('./en.json', import.meta.url),
   ka: new URL('./ka.json', import.meta.url),
   ru: new URL('./ru.json', import.meta.url),
 };
 
+const SITE_CONFIG_PATH = new URL('../config/site.ts', import.meta.url);
+const INDUSTRIES = ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'];
+
 const EXPECTED_KEYS = {
+  seo: ['description', 'title'],
+  hero: [
+    'audience',
+    'commitment',
+    'ctaCall',
+    'ctaResults',
+    'lead',
+    'signedBy',
+    'sub',
+    'taglinePrefix',
+    'taglineWorks',
+    'typewriterPrefill',
+    'typewriterWords',
+  ],
+  work: [
+    'eyebrow',
+    'headingAccent',
+    'headingPre',
+    ...Array.from({ length: 6 }, (_, index) => [
+      `s${index + 1}Desc`,
+      `s${index + 1}Tag`,
+      `s${index + 1}Title`,
+    ]).flat(),
+  ],
+  faq: [
+    'headingAccent',
+    'headingPre',
+    'subtitle',
+    ...Array.from({ length: 14 }, (_, index) => [`q${index + 1}`, `a${index + 1}`]).flat(),
+  ],
+  cta: ['heading', 'orWrite', 'phoneLabel', 'phoneNote', 'phoneSubmit', 'subtitle'],
+  wordmark: ['line'],
+  build: [
+    'buildBtn',
+    'building',
+    'contactLabel',
+    'cta',
+    'done',
+    'eyebrow',
+    'heading',
+    'industryLabel',
+    'namePlaceholder',
+    'nav1',
+    'nav2',
+    'nav3',
+    'previewLabel',
+    'progressLabel',
+    'ready',
+    'rebuild',
+    'replay',
+    'sampleBadge',
+    'sampleName',
+    'servicesLabel',
+    'speedLabel',
+    'subtitle',
+    ...INDUSTRIES,
+    ...INDUSTRIES.flatMap((industry) => [
+      `address_${industry}`,
+      `cta_${industry}`,
+      `h1_${industry}`,
+      `proof_${industry}`,
+      `proofValue_${industry}`,
+      `s1_${industry}`,
+      `s2_${industry}`,
+      `s3_${industry}`,
+      `sub_${industry}`,
+    ]),
+  ],
   liveUpdate: [
     'editing',
     'eyebrow',
@@ -21,6 +94,48 @@ const EXPECTED_KEYS = {
     'replay',
     'request',
     'subtitle',
+  ],
+  speed: [
+    'check1',
+    'check2',
+    'check3',
+    'currentLabel',
+    'eyebrow',
+    'fast',
+    'heading',
+    'improvedLabel',
+    'note',
+    'ok',
+    'perMonth',
+    'quote',
+    'replay',
+    'result',
+    'result_fast',
+    'result_ok',
+    'result_slow',
+    'siteName',
+    'slow',
+    'source',
+    'subtitle',
+    'ticket',
+    'visitors',
+    'yours',
+  ],
+  flip: [
+    'eyebrow',
+    'heading',
+    'launch',
+    'month',
+    'monthly',
+    'monthlyEnd',
+    'monthlyLabel',
+    'note',
+    'once',
+    'onceEnd',
+    'onceLabel',
+    'replay',
+    'subtitle',
+    ...Array.from({ length: 8 }, (_, index) => `w${index + 1}`),
   ],
   mobileLead: [
     'eyebrow',
@@ -36,6 +151,7 @@ const EXPECTED_KEYS = {
     'subtitle',
     'visitor',
   ],
+  proof: ['brand', 'cta', 'h1', 'nav1', 'nav2', 'replay', 's1', 's2', 'speed', 'sub', 'url'],
 };
 
 const locales = Object.fromEntries(
@@ -55,10 +171,83 @@ for (const [namespace, expectedKeys] of Object.entries(EXPECTED_KEYS)) {
       }),
     );
 
-    assert.deepEqual(pathsByLocale.en, expectedKeys);
+    assert.deepEqual(pathsByLocale.en, [...expectedKeys].sort());
     assert.deepEqual(pathsByLocale.ka, pathsByLocale.en);
     assert.deepEqual(pathsByLocale.ru, pathsByLocale.en);
   });
+}
+
+test('Georgian animated preview headings keep real whitespace', () => {
+  for (const industry of INDUSTRIES) {
+    const heading = locales.ka.product.build[`h1_${industry}`];
+    const reassembled = joinAnimatedWords(heading);
+
+    assert.equal(reassembled, heading);
+    assert.match(reassembled, /\s/u, `${industry} heading must contain visible word spacing`);
+  }
+});
+
+test('Georgian public showcase copy contains no Cyrillic characters', () => {
+  assert.doesNotMatch(JSON.stringify(locales.ka), /[\u0400-\u04ff]/u);
+});
+
+test('showcase copy contains no long dash or middle dash', () => {
+  for (const [locale, messages] of Object.entries(locales)) {
+    assert.doesNotMatch(
+      JSON.stringify(messages),
+      /[—–]/u,
+      `${locale} showcase copy contains a long dash`,
+    );
+  }
+
+  assert.doesNotMatch(readFileSync(SITE_CONFIG_PATH, 'utf8'), /[—–]/u);
+});
+
+test('speed copy contains no borrowed percentage claim', () => {
+  for (const [locale, messages] of Object.entries(locales)) {
+    const copy = JSON.stringify(messages.product.speed);
+    assert.doesNotMatch(copy, /Deloitte|Milliseconds Make Millions|%/iu, `${locale} speed copy`);
+  }
+});
+
+test('aiNOW owns the public commitments instead of a personal signer', () => {
+  const personalSigner = {
+    en: /(?<![\p{L}])(?:Andrew|I|me|my|we|us|our)(?![\p{L}])/iu,
+    ka: /(?<![\p{L}])(?:ენდრიუ|მე|ჩემი|ჩვენ|ჩვენი)(?![\p{L}])/u,
+    ru: /(?<![\p{L}])(?:Эндрю|я|меня|мне|мой|мы|нас|нам|наш)(?![\p{L}])/iu,
+  };
+
+  for (const [locale, messages] of Object.entries(locales)) {
+    assert.match(messages.product.hero.signedBy, /aiNOW/u);
+    const visitorCopy = collectStringValues(selectShowcaseCopy(messages)).join('\n');
+    assert.doesNotMatch(visitorCopy, personalSigner[locale]);
+  }
+});
+
+test('machine-readable aiWEB copy avoids stale guarantees and aggressive positioning', () => {
+  const config = readFileSync(SITE_CONFIG_PATH, 'utf8');
+  assert.doesNotMatch(
+    config,
+    /10 working days|first month (?:is )?free|nothing to pay upfront|build is (?:the )?cheap part/iu,
+  );
+});
+
+test('sticky-header CTA labels stay short enough for the mobile nav slot', () => {
+  const maximumCharacters = { en: 12, ka: 14, ru: 12 };
+
+  for (const [locale, messages] of Object.entries(locales)) {
+    const label = messages.landingNav.cta;
+    assert.ok(
+      [...label].length <= maximumCharacters[locale],
+      `${locale} landingNav.cta is too long for the mobile header: ${label}`,
+    );
+  }
+});
+
+function selectShowcaseCopy(messages) {
+  return Object.fromEntries(
+    Object.keys(EXPECTED_KEYS).map((namespace) => [namespace, messages.product[namespace]]),
+  );
 }
 
 function collectLeafPaths(value, prefix = '') {
@@ -68,4 +257,10 @@ function collectLeafPaths(value, prefix = '') {
       return child && typeof child === 'object' ? collectLeafPaths(child, path) : path;
     })
     .sort();
+}
+
+function collectStringValues(value) {
+  return Object.values(value).flatMap((child) =>
+    child && typeof child === 'object' ? collectStringValues(child) : [String(child)],
+  );
 }

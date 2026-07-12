@@ -1,67 +1,89 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, useReducedMotion } from 'framer-motion';
+import { Ico } from '@/components/common/Ico';
+import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 
-/* =========================================================================
-   HeroProof, aiWEB: a site, in a browser, loading in front of him, with the gauge settling high.
+/* The hero shows a small example site assembling. The ring is build progress,
+   not a performance score or a promise about a visitor's future website. */
 
-   Two claims land at once and neither is written down: we build it, and it is fast. The full
-   version, where he types his own business name and watches it assemble, is one screen below.
-   This is the frame that makes him scroll to it.
-
-   The speed number is not a claim about his site. It is what the gauge on OUR builds reads, and
-   the only external number on this entire landing (Deloitte with Google: a tenth of a second is
-   worth 8.4% of retail conversion) is quoted with its source further down, never here.
-   ========================================================================= */
-
-const CYCLE = 5200;
-const TARGET = 96;
+const CYCLE_MS = 6_200;
+const PROGRESS_COMPLETE = 100;
 
 export function HeroProof() {
   const t = useTranslations('product.proof');
   const reduced = useReducedMotion();
   const [stage, setStage] = useState(0);
-  const [speed, setSpeed] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const rafRef = useRef<number | null>(null);
+
+  const stop = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+  }, []);
+
+  const reset = useCallback(() => {
+    stop();
+    setStage(0);
+    setProgress(0);
+  }, [stop]);
+
+  const play = useCallback(() => {
+    reset();
+    [900, 1_900, 3_200, 4_800].forEach((milliseconds, index) => {
+      timersRef.current.push(setTimeout(() => setStage(index + 1), milliseconds));
+    });
+
+    const startedAt = performance.now();
+    const tick = () => {
+      const sequenceProgress = Math.min((performance.now() - startedAt) / 5_600, 1);
+      setProgress(Math.round(PROGRESS_COMPLETE * (1 - Math.pow(1 - sequenceProgress, 3))));
+      if (sequenceProgress < 1) rafRef.current = requestAnimationFrame(tick);
+      else rafRef.current = null;
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }, [reset]);
+
+  const showFinal = useCallback(() => {
+    stop();
+    setStage(4);
+    setProgress(PROGRESS_COMPLETE);
+  }, [stop]);
 
   useEffect(() => {
-    if (reduced) {
-      setStage(4);
-      setSpeed(TARGET);
-      return;
-    }
-    let raf = 0;
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    const target = rootRef.current;
+    if (!target) return;
 
-    const run = () => {
-      setStage(0);
-      setSpeed(0);
-      [400, 900, 1500, 2100].forEach((ms, i) => {
-        timers.push(setTimeout(() => setStage(i + 1), ms));
-      });
-      const t0 = performance.now();
-      const tick = () => {
-        const p = Math.min((performance.now() - t0) / 2400, 1);
-        setSpeed(Math.round(TARGET * (1 - Math.pow(1 - p, 3))));
-        if (p < 1) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    };
+    const controller = createDemoLoop({
+      target,
+      reducedMotion: Boolean(reduced),
+      threshold: 0.35,
+      cycleMs: CYCLE_MS,
+      holdMs: 2_000,
+      play,
+      showFinal,
+      reset,
+      stop,
+    });
+    controllerRef.current = controller;
 
-    run();
-    const loop = setInterval(run, CYCLE);
     return () => {
-      clearInterval(loop);
-      timers.forEach(clearTimeout);
-      cancelAnimationFrame(raf);
+      controller.cleanup();
+      if (controllerRef.current === controller) controllerRef.current = null;
     };
-  }, [reduced]);
+  }, [play, reduced, reset, showFinal, stop]);
 
   const C = 2 * Math.PI * 26;
 
   return (
-    <div className="flex items-start gap-4">
+    <div ref={rootRef} className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
       {/* the browser */}
       <div className="min-w-0 flex-1 overflow-hidden rounded-2xl bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_28px_60px_-40px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-2 border-b border-[#ececec] bg-[#fafafa] px-3.5 py-2.5">
@@ -127,7 +149,7 @@ export function HeroProof() {
       </div>
 
       {/* the gauge */}
-      <div className="shrink-0 rounded-2xl bg-[#0e0e11] px-3 py-4 text-center">
+      <div className="flex w-full shrink-0 flex-row items-center rounded-2xl bg-[#0e0e11] px-4 py-3 text-left sm:w-auto sm:flex-col sm:px-3 sm:py-4 sm:text-center">
         <span className="relative inline-flex items-center justify-center">
           <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
             <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
@@ -140,18 +162,26 @@ export function HeroProof() {
               strokeWidth="6"
               strokeLinecap="round"
               strokeDasharray={C}
-              strokeDashoffset={C - (C * speed) / 100}
+              strokeDashoffset={C - (C * progress) / 100}
               transform="rotate(-90 32 32)"
               style={{ transition: 'stroke-dashoffset 90ms linear' }}
             />
           </svg>
           <span className="absolute font-display text-[17px] font-extrabold tabular-nums text-white">
-            {speed}
+            {progress}
           </span>
         </span>
-        <span className="mt-2 block text-[9px] uppercase leading-tight tracking-wide text-white/35">
+        <span className="ml-3 block text-[9px] uppercase leading-tight tracking-wide text-white/35 sm:ml-0 sm:mt-2">
           {t('speed')}
         </span>
+        <button
+          type="button"
+          onClick={() => controllerRef.current?.replay()}
+          aria-label={t('replay')}
+          className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-xl text-white/55 transition-[transform,color] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] sm:ml-0 sm:mt-2 md:hover:text-white"
+        >
+          <Ico name="solar:refresh-bold-duotone" className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );

@@ -1,134 +1,181 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Ico } from '@/components/common/Ico';
 import { SectionContainer } from '@/components/layout/SectionContainer';
+import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 import { cn } from '@/lib/utils';
 import { SPEED_FEEL_GRID_TEMPLATE } from './web-speed-layout.mjs';
 
-/* =========================================================================
-   WebSpeedDuel: the one external number on this entire site, and where it comes from.
+type Feel = 'slow' | 'ok' | 'fast';
 
-   Every web agency claims speed matters and none of them can cite anything. There is
-   exactly one number in this category with real evidence behind it: Deloitte, with Google,
-   across 30 million sessions and 37 brands, measured that a 0.1 second improvement in
-   mobile speed lifted retail conversions by 8.4%.
-
-   So the widget does two things. It puts that number on the page WITH its source, in the
-   same size as the number, because a statistic without a source is a decoration. And then
-   it lets the owner put in his own traffic and his own average sale, so the GEL figure at
-   the bottom is his arithmetic and not our claim.
-
-   If his traffic is small the number comes out small. We do not hide that. A calculator
-   that can only produce a big number is a slot machine.
-   ========================================================================= */
-
-/* Deloitte with Google, "Milliseconds Make Millions": +8.4% retail conversion for a 0.1s
-   mobile speed improvement, across 30M sessions / 37 brands. This constant is the ONLY
-   borrowed figure on aiweb.ge and it is attributed on screen, next to the result. */
-const DELOITTE_UPLIFT = 0.084;
-
-/* How much of that uplift a given starting speed can recover. A page that already feels
-   instant has nothing to win, and the widget must be honest about that or it is a con. */
-const RECOVERABLE = { slow: 1, ok: 0.55, fast: 0.1 } as const;
-type Feel = keyof typeof RECOVERABLE;
+const FEELS: Feel[] = ['slow', 'ok', 'fast'];
+const CYCLE_MS = 7_000;
 
 export function WebSpeedDuel() {
   const t = useTranslations('product.speed');
+  const reduced = useReducedMotion();
   const [feel, setFeel] = useState<Feel>('slow');
-  const [visitors, setVisitors] = useState(1200);
-  const [ticket, setTicket] = useState(120);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  /* A 2% baseline conversion is a placeholder the visitor cannot see and cannot be misled
-     by, because what he reads is only the DELTA, and the delta scales linearly with it. */
-  const monthlyRevenue = visitors * 0.02 * ticket;
-  const gain = monthlyRevenue * DELOITTE_UPLIFT * RECOVERABLE[feel];
+  const stop = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }, []);
 
-  const fmt = (n: number) =>
-    new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Math.round(n));
+  const reset = useCallback(() => {
+    stop();
+    setFeel('slow');
+  }, [stop]);
+
+  const play = useCallback(() => {
+    reset();
+    timersRef.current = [
+      setTimeout(() => setFeel('ok'), 2_300),
+      setTimeout(() => setFeel('fast'), 4_700),
+    ];
+  }, [reset]);
+
+  const showFinal = useCallback(() => {
+    stop();
+    setFeel('fast');
+  }, [stop]);
+
+  useEffect(() => {
+    const target = rootRef.current;
+    if (!target) return;
+
+    const controller = createDemoLoop({
+      target,
+      reducedMotion: Boolean(reduced),
+      threshold: 0.35,
+      cycleMs: CYCLE_MS,
+      holdMs: 2_000,
+      play,
+      showFinal,
+      reset,
+      stop,
+    });
+    controllerRef.current = controller;
+
+    return () => {
+      controller.cleanup();
+      if (controllerRef.current === controller) controllerRef.current = null;
+    };
+  }, [play, reduced, reset, showFinal, stop]);
+
+  const chooseFeel = (nextFeel: Feel) => {
+    controllerRef.current?.takeControl();
+    setFeel(nextFeel);
+  };
 
   return (
     <SectionContainer className="py-20 md:py-28">
-      <div className="rounded-3xl bg-[#0e0e11] p-6 md:p-12">
-        <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-          {/* LEFT: the quote, given the size a real proof point deserves */}
-          <div>
+      <div
+        ref={rootRef}
+        className="min-w-0 overflow-hidden rounded-[32px] bg-[#0e0e11] p-5 text-white shadow-[0_34px_80px_-48px_rgba(0,0,0,0.7)] sm:p-7 md:p-10 lg:p-12"
+      >
+        <div className="grid min-w-0 gap-10 xl:grid-cols-[minmax(280px,0.72fr)_minmax(0,1.28fr)] xl:gap-14">
+          <div className="min-w-0">
             <span className="text-[12px] uppercase tracking-wide text-white/40">
               {t('eyebrow')}
             </span>
-            <h2 className="mt-4 text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-white md:text-4xl">
+            <h2 className="mt-4 max-w-xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-white md:text-4xl">
               {t('heading')}
             </h2>
-
-            <blockquote className="mt-8 border-l-2 pl-5" style={{ borderColor: 'var(--brand)' }}>
-              <p className="text-pretty text-[17px] leading-relaxed text-white md:text-[19px]">
-                {t('quote')}
-              </p>
-              <footer className="mt-4 text-[13px] leading-relaxed text-white/45">
-                {t('source')}
-              </footer>
-            </blockquote>
-
-            <p className="mt-6 max-w-md text-pretty text-[14px] leading-relaxed text-white/50">
+            <p className="mt-4 max-w-lg text-pretty text-[15px] leading-relaxed text-white/55">
               {t('subtitle')}
             </p>
+
+            <div className="mt-7 min-w-0 rounded-2xl bg-white/[0.05] p-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)] sm:p-4">
+              <span className="block text-[12px] font-semibold text-white/55">{t('yours')}</span>
+              <div
+                className="mt-3 grid min-w-0 gap-2"
+                style={{ gridTemplateColumns: SPEED_FEEL_GRID_TEMPLATE }}
+              >
+                {FEELS.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => chooseFeel(item)}
+                    aria-pressed={feel === item}
+                    className={cn(
+                      'min-h-[44px] min-w-0 rounded-xl px-3 text-[13px] font-semibold',
+                      'transition-[transform,background-color,color] duration-150 active:scale-[0.97]',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e11]',
+                      feel === item
+                        ? 'bg-[var(--brand)] text-[#0e0e11]'
+                        : 'bg-white/[0.06] text-white/60 md:hover:bg-white/10',
+                    )}
+                  >
+                    {t(item)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <ul className="mt-6 space-y-3">
+              <li className="flex min-w-0 items-start gap-3 text-[13px] leading-relaxed text-white/65">
+                <Ico name="solar:smartphone-bold-duotone" className="mt-0.5 h-5 w-5 text-[var(--brand)]" />
+                <span>{t('check1')}</span>
+              </li>
+              <li className="flex min-w-0 items-start gap-3 text-[13px] leading-relaxed text-white/65">
+                <Ico name="solar:gallery-bold-duotone" className="mt-0.5 h-5 w-5 text-[var(--brand)]" />
+                <span>{t('check2')}</span>
+              </li>
+              <li className="flex min-w-0 items-start gap-3 text-[13px] leading-relaxed text-white/65">
+                <Ico name="solar:shield-check-bold-duotone" className="mt-0.5 h-5 w-5 text-[var(--brand)]" />
+                <span>{t('check3')}</span>
+              </li>
+            </ul>
+
+            <button
+              type="button"
+              onClick={() => controllerRef.current?.replay()}
+              className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-[13px] font-bold text-[#0e0e11] transition-transform duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e11]"
+            >
+              <Ico name="solar:refresh-bold-duotone" className="h-5 w-5" />
+              {t('replay')}
+            </button>
           </div>
 
-          {/* RIGHT: his inputs, his number */}
-          <div className="min-w-0 rounded-2xl bg-white/[0.04] p-6 md:p-7">
-            <span className="block text-[13px] font-medium text-white/70">{t('yours')}</span>
-            <div
-              className="mt-3 grid gap-2"
-              style={{ gridTemplateColumns: SPEED_FEEL_GRID_TEMPLATE }}
+          <div className="min-w-0 rounded-3xl bg-white/[0.04] p-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07)] sm:p-5 md:p-6">
+            <div className="grid min-w-0 gap-3 md:grid-cols-2">
+              <BrowserCard
+                label={t('currentLabel')}
+                siteName={t('siteName')}
+                feel={feel}
+                variant="current"
+                reduced={Boolean(reduced)}
+              />
+              <BrowserCard
+                label={t('improvedLabel')}
+                siteName={t('siteName')}
+                feel="fast"
+                variant="improved"
+                reduced={Boolean(reduced)}
+              />
+            </div>
+
+            <motion.div
+              key={feel}
+              initial={reduced ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduced ? 0 : 0.25 }}
+              aria-live="polite"
+              className="mt-3 flex min-w-0 items-start gap-3 rounded-2xl bg-[var(--brand)] p-4 text-[#0e0e11] sm:items-center sm:p-5"
             >
-              {(['slow', 'ok', 'fast'] as Feel[]).map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  onClick={() => setFeel(f)}
-                  aria-pressed={feel === f}
-                  className={cn(
-                    'min-h-[44px] min-w-0 rounded-xl px-3 text-[13px] font-semibold',
-                    'transition-[transform,background-color,color] duration-150 ease-out',
-                    'active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e11]',
-                    feel === f
-                      ? 'bg-[var(--brand)] text-[#0e0e11]'
-                      : 'bg-white/[0.06] text-white/60 md:hover:bg-white/10',
-                  )}
-                >
-                  {t(f)}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-7 flex flex-col gap-6">
-              <Range
-                label={t('visitors')}
-                value={visitors}
-                min={100}
-                max={20000}
-                step={100}
-                onChange={setVisitors}
-              />
-              <Range
-                label={t('ticket')}
-                value={ticket}
-                min={10}
-                max={2000}
-                step={10}
-                onChange={setTicket}
-              />
-            </div>
-
-            <div className="mt-8 border-t border-white/10 pt-6">
-              <p className="text-pretty text-[13px] leading-relaxed text-white/50">{t('result')}</p>
-              <p className="mt-2 font-display text-5xl font-extrabold tabular-nums leading-none text-white md:text-6xl">
-                {fmt(gain)}
-                <span className="ml-2 text-xl font-bold text-white/40">{t('perMonth')}</span>
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0e0e11]/10">
+                <Ico name="solar:bolt-bold-duotone" className="h-6 w-6" />
+              </span>
+              <p className="min-w-0 text-pretty text-[13px] font-bold leading-relaxed sm:text-[14px]">
+                {t(`result_${feel}`)}
               </p>
-            </div>
-
-            <p className="mt-5 text-pretty text-[11px] leading-relaxed text-white/35">{t('note')}</p>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -136,36 +183,89 @@ export function WebSpeedDuel() {
   );
 }
 
-function Range({
+function BrowserCard({
   label,
-  value,
-  min,
-  max,
-  step,
-  onChange,
+  siteName,
+  feel,
+  variant,
+  reduced,
 }: {
   label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  onChange: (v: number) => void;
+  siteName: string;
+  feel: Feel;
+  variant: 'current' | 'improved';
+  reduced: boolean;
 }) {
+  const progress = feel === 'slow' ? 34 : feel === 'ok' ? 68 : 100;
+  const contentOpacity = feel === 'slow' ? 0.24 : feel === 'ok' ? 0.62 : 1;
+  const highlighted = variant === 'improved';
+
   return (
-    <label className="block">
-      <span className="flex items-baseline justify-between gap-4">
-        <span className="text-[13px] text-white/60">{label}</span>
-        <span className="font-display text-lg font-extrabold tabular-nums text-white">{value}</span>
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-3 h-10 w-full cursor-pointer appearance-none bg-transparent focus-visible:outline-none [&::-webkit-slider-runnable-track]:h-1.5 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-white/15 [&::-webkit-slider-thumb]:mt-[-7px] [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--brand)] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-150 [&::-webkit-slider-thumb]:ease-out active:[&::-webkit-slider-thumb]:scale-[0.96] [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[var(--brand)] [&::-moz-range-track]:h-1.5 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-white/15"
-      />
-    </label>
+    <div
+      className={cn(
+        'min-w-0 overflow-hidden rounded-2xl bg-white text-[#0e0e11]',
+        highlighted && 'shadow-[0_0_0_2px_var(--brand),0_20px_45px_-30px_var(--brand)]',
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-2 border-b border-neutral-900/[0.07] bg-[#f7f7f8] px-3 py-3">
+        <span className="flex shrink-0 gap-1" aria-hidden="true">
+          <span className="h-2 w-2 rounded-full bg-neutral-900/10" />
+          <span className="h-2 w-2 rounded-full bg-neutral-900/10" />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-[10px] font-semibold text-neutral-900/40">
+          {label}
+        </span>
+        <Ico
+          name={highlighted ? 'solar:bolt-bold-duotone' : 'solar:clock-circle-bold-duotone'}
+          className={cn('h-4 w-4', highlighted ? 'text-[var(--brand)]' : 'text-neutral-900/30')}
+        />
+      </div>
+
+      <div className="h-1 bg-neutral-900/[0.06]">
+        <motion.span
+          className="block h-full bg-[var(--brand)]"
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: reduced ? 0 : 0.5, ease: 'easeOut' }}
+        />
+      </div>
+
+      <motion.div
+        animate={{ opacity: contentOpacity }}
+        transition={{ duration: reduced ? 0 : 0.35 }}
+        className="min-h-[292px] p-4 sm:p-5"
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-neutral-900/[0.06] pb-3">
+          <span className="flex items-center gap-2 text-[11px] font-extrabold">
+            <Ico name="solar:global-bold-duotone" className="h-4 w-4 text-[var(--brand)]" />
+            {siteName}
+          </span>
+          <span className="h-2 w-14 rounded-full bg-neutral-900/10" aria-hidden="true" />
+        </div>
+
+        <div className="mt-5 grid grid-cols-[minmax(0,1fr)_72px] items-center gap-3">
+          <span className="min-w-0">
+            <span className="block h-3 w-full max-w-32 rounded-full bg-neutral-900/80" />
+            <span className="mt-2 block h-3 w-4/5 rounded-full bg-neutral-900/80" />
+            <span className="mt-3 block h-2 w-full rounded-full bg-neutral-900/10" />
+            <span className="mt-2 block h-2 w-3/4 rounded-full bg-neutral-900/10" />
+          </span>
+          <span className="flex aspect-square items-center justify-center rounded-2xl bg-[var(--brand)]/15 text-[var(--brand)]">
+            <Ico name="solar:gallery-bold-duotone" className="h-8 w-8" />
+          </span>
+        </div>
+
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          {['solar:calendar-mark-bold-duotone', 'solar:user-check-rounded-bold-duotone', 'solar:phone-bold-duotone'].map((icon) => (
+            <span key={icon} className="flex min-h-[58px] items-center justify-center rounded-xl bg-neutral-900/[0.04] text-[var(--brand)]">
+              <Ico name={icon} className="h-5 w-5" />
+            </span>
+          ))}
+        </div>
+
+        <span className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-[#0e0e11] text-white">
+          <Ico name="solar:arrow-right-bold-duotone" className="h-5 w-5" />
+        </span>
+      </motion.div>
+    </div>
   );
 }

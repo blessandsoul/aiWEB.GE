@@ -3,43 +3,57 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, Check, Globe2, MessageCircle, PencilLine, RefreshCw, RotateCcw } from 'lucide-react';
+import { Ico } from '@/components/common/Ico';
 import { SectionContainer } from '@/components/layout/SectionContainer';
+import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 import { cn } from '@/lib/utils';
 import {
   LIVE_UPDATE_STAGES,
   createTimelinePlayer,
   liveUpdateFrame,
 } from './web-demo-models.mjs';
-import { startTimelineWhenVisible } from './web-demo-visibility.mjs';
 
-const STEP_ICONS = [MessageCircle, PencilLine, RefreshCw, Check];
+const STEP_ICONS = [
+  'solar:chat-round-dots-bold-duotone',
+  'solar:pen-new-square-bold-duotone',
+  'solar:refresh-bold-duotone',
+  'solar:check-circle-bold-duotone',
+] as const;
+const CYCLE_MS = 7_200;
 
 export function WebLiveUpdate() {
   const t = useTranslations('product.liveUpdate');
   const reduced = useReducedMotion();
   const [stage, setStage] = useState<string>(LIVE_UPDATE_STAGES[0]);
-  const playerRef = useRef<{ replay: () => void; cancel: () => void } | null>(null);
+  const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const player = createTimelinePlayer({
       stages: LIVE_UPDATE_STAGES,
-      reducedMotion: Boolean(reduced),
+      duration: CYCLE_MS,
       onStage: (nextStage: string) => setStage(nextStage),
     });
 
-    playerRef.current = player;
-    const stopVisibility = startTimelineWhenVisible({
-      node: sectionRef.current,
+    const target = sectionRef.current;
+    if (!target) return;
+
+    const controller = createDemoLoop({
+      target,
       reducedMotion: Boolean(reduced),
+      threshold: 0.35,
+      cycleMs: CYCLE_MS,
+      holdMs: 2_000,
       play: player.play,
+      showFinal: player.showFinal,
+      reset: player.reset,
+      stop: player.cancel,
     });
+    controllerRef.current = controller;
 
     return () => {
-      stopVisibility();
-      player.cancel();
-      if (playerRef.current === player) playerRef.current = null;
+      controller.cleanup();
+      if (controllerRef.current === controller) controllerRef.current = null;
     };
   }, [reduced]);
 
@@ -50,8 +64,8 @@ export function WebLiveUpdate() {
 
   return (
     <SectionContainer className="py-20 md:py-28">
-      <div ref={sectionRef} className="grid items-center gap-10 lg:grid-cols-[minmax(260px,360px)_1fr] lg:gap-14">
-        <div>
+      <div ref={sectionRef} className="grid min-w-0 items-center gap-10 lg:grid-cols-[minmax(260px,360px)_1fr] lg:gap-14">
+        <div className="min-w-0">
           <span className="text-[12px] uppercase tracking-wide text-neutral-900/40">
             {t('eyebrow')}
           </span>
@@ -64,7 +78,6 @@ export function WebLiveUpdate() {
 
           <ol className="mt-7 space-y-3" aria-label={t('heading')}>
             {LIVE_UPDATE_STAGES.map((item, index) => {
-              const Icon = STEP_ICONS[index];
               const reached = index <= activeIndex;
               return (
                 <li
@@ -81,7 +94,7 @@ export function WebLiveUpdate() {
                       reached ? 'bg-[var(--brand)] text-[#0e0e11]' : 'bg-neutral-900/[0.06]',
                     )}
                   >
-                    <Icon size={14} aria-hidden="true" />
+                    <Ico name={STEP_ICONS[index]} className="h-3.5 w-3.5" />
                   </span>
                   <span className="line-clamp-2">
                     {item === 'request' ? t('request') : t(item)}
@@ -93,15 +106,15 @@ export function WebLiveUpdate() {
 
           <button
             type="button"
-            onClick={() => playerRef.current?.replay()}
+            onClick={() => controllerRef.current?.replay()}
             className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-neutral-900 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
           >
-            <RotateCcw size={15} aria-hidden="true" />
+            <Ico name="solar:refresh-bold-duotone" className="h-4 w-4" />
             {t('replay')}
           </button>
         </div>
 
-        <div className="overflow-hidden rounded-3xl bg-[#0e0e11] p-4 text-white shadow-[0_24px_60px_-34px_rgba(0,0,0,0.55)] md:p-7">
+        <div className="min-w-0 overflow-hidden rounded-3xl bg-[#0e0e11] p-4 text-white shadow-[0_24px_60px_-34px_rgba(0,0,0,0.55)] md:p-7">
           <motion.div
             key={`request-${stage}`}
             initial={reduced ? false : { opacity: 0.55, y: -5 }}
@@ -110,7 +123,7 @@ export function WebLiveUpdate() {
             className="ml-auto max-w-[330px] rounded-2xl rounded-tr-sm bg-white px-4 py-3 text-[13px] leading-relaxed text-neutral-900"
           >
             <span className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-neutral-900/35">
-              <MessageCircle size={13} aria-hidden="true" />
+              <Ico name="solar:chat-round-dots-bold-duotone" className="h-3.5 w-3.5" />
               {t('eyebrow')}
             </span>
             {t('request')}
@@ -119,7 +132,7 @@ export function WebLiveUpdate() {
           <div className="mt-5 grid gap-3 md:grid-cols-[minmax(0,1fr)_44px_minmax(0,1fr)] md:items-stretch">
             <div className="rounded-2xl bg-white/[0.06] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
               <div className="flex min-h-8 items-center gap-2 text-[12px] text-white/55">
-                <PencilLine size={15} aria-hidden="true" />
+                <Ico name="solar:pen-new-square-bold-duotone" className="h-4 w-4" />
                 <span>{stage === 'request' ? t('request') : t(frame.status)}</span>
               </div>
               <div className="mt-5 rounded-xl bg-white p-5 text-neutral-900">
@@ -141,12 +154,15 @@ export function WebLiveUpdate() {
             </div>
 
             <div className="flex min-h-11 items-center justify-center" aria-hidden="true">
-              <ArrowRight className="rotate-90 text-[var(--brand)] md:rotate-0" size={22} />
+              <Ico
+                name="solar:arrow-right-bold-duotone"
+                className="h-[22px] w-[22px] rotate-90 text-[var(--brand)] md:rotate-0"
+              />
             </div>
 
             <div className="relative overflow-hidden rounded-2xl bg-white text-neutral-900">
               <div className="flex items-center gap-2 border-b border-neutral-900/[0.06] bg-[#fafafa] px-4 py-3">
-                <Globe2 size={14} className="text-neutral-900/35" aria-hidden="true" />
+                <Ico name="solar:global-bold-duotone" className="h-3.5 w-3.5 text-neutral-900/35" />
                 <span className="text-[11px] text-neutral-900/40">yourclinic.ge</span>
               </div>
               <div className="relative min-h-[190px] p-5">
@@ -175,7 +191,7 @@ export function WebLiveUpdate() {
                 )}
                 {stage === 'published' && (
                   <span className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-[var(--brand)] px-3 py-1 text-[11px] font-bold text-[#0e0e11]">
-                    <Check size={12} aria-hidden="true" />
+                    <Ico name="solar:check-circle-bold-duotone" className="h-3 w-3" />
                     {t('published')}
                   </span>
                 )}
@@ -190,7 +206,7 @@ export function WebLiveUpdate() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex min-h-[58px] items-center gap-3 rounded-2xl bg-[var(--brand)] px-4 text-[14px] font-bold text-[#0e0e11]"
               >
-                <Check size={18} aria-hidden="true" />
+                <Ico name="solar:check-circle-bold-duotone" className="h-[18px] w-[18px]" />
                 {t('outcome')}
               </motion.div>
             )}

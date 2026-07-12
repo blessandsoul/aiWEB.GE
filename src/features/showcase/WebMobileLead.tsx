@@ -3,43 +3,52 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowDown, ArrowRight, Bell, Check, Inbox, RotateCcw, Send, Smartphone } from 'lucide-react';
+import { Ico } from '@/components/common/Ico';
 import { SectionContainer } from '@/components/layout/SectionContainer';
+import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 import { cn } from '@/lib/utils';
 import {
   MOBILE_LEAD_STAGES,
   createTimelinePlayer,
   mobileLeadFrame,
 } from './web-demo-models.mjs';
-import { startTimelineWhenVisible } from './web-demo-visibility.mjs';
 
 const STEP_KEYS = ['visitor', 'selected', 'formSent', 'leadCreated'] as const;
+const CYCLE_MS = 7_200;
 
 export function WebMobileLead() {
   const t = useTranslations('product.mobileLead');
   const reduced = useReducedMotion();
   const [stage, setStage] = useState<string>(MOBILE_LEAD_STAGES[0]);
-  const playerRef = useRef<{ replay: () => void; cancel: () => void } | null>(null);
+  const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const player = createTimelinePlayer({
       stages: MOBILE_LEAD_STAGES,
-      reducedMotion: Boolean(reduced),
+      duration: CYCLE_MS,
       onStage: (nextStage: string) => setStage(nextStage),
     });
 
-    playerRef.current = player;
-    const stopVisibility = startTimelineWhenVisible({
-      node: sectionRef.current,
+    const target = sectionRef.current;
+    if (!target) return;
+
+    const controller = createDemoLoop({
+      target,
       reducedMotion: Boolean(reduced),
+      threshold: 0.35,
+      cycleMs: CYCLE_MS,
+      holdMs: 2_000,
       play: player.play,
+      showFinal: player.showFinal,
+      reset: player.reset,
+      stop: player.cancel,
     });
+    controllerRef.current = controller;
 
     return () => {
-      stopVisibility();
-      player.cancel();
-      if (playerRef.current === player) playerRef.current = null;
+      controller.cleanup();
+      if (controllerRef.current === controller) controllerRef.current = null;
     };
   }, [reduced]);
 
@@ -62,17 +71,17 @@ export function WebMobileLead() {
         </div>
         <button
           type="button"
-          onClick={() => playerRef.current?.replay()}
+          onClick={() => controllerRef.current?.replay()}
           className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-neutral-900 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
         >
-          <RotateCcw size={15} aria-hidden="true" />
+          <Ico name="solar:refresh-bold-duotone" className="h-4 w-4" />
           {t('replay')}
         </button>
       </div>
 
       <div
         ref={sectionRef}
-        className="mt-10 overflow-hidden rounded-3xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] md:p-7"
+        className="mt-10 min-w-0 overflow-hidden rounded-3xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] md:p-7"
         style={{ background: 'color-mix(in srgb, var(--brand) 8%, white)' }}
       >
         <ol className="grid grid-cols-4 gap-2" aria-label={t('heading')}>
@@ -100,14 +109,14 @@ export function WebMobileLead() {
             <div className="rounded-[1.55rem] bg-white p-5">
               <div className="mx-auto h-1.5 w-14 rounded-full bg-neutral-900/15" aria-hidden="true" />
               <div className="mt-5 flex items-center gap-2 text-[12px] font-semibold text-neutral-900/55">
-                <Smartphone size={15} aria-hidden="true" />
+                <Ico name="solar:smartphone-bold-duotone" className="h-4 w-4" />
                 {t('visitor')}
               </div>
               <div className={cn('mt-5 rounded-2xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.08)] transition-colors duration-300', frame.serviceSelected && 'bg-[var(--brand)]/10 shadow-[0_0_0_2px_var(--brand)]')}>
                 <span className="text-[13px] font-bold text-neutral-900">{t('service')}</span>
                 {frame.serviceSelected && (
                   <motion.span initial={reduced ? false : { opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex items-center gap-2 text-[11px] font-semibold text-neutral-900/65">
-                    <Check size={13} aria-hidden="true" />
+                    <Ico name="solar:check-circle-bold-duotone" className="h-3.5 w-3.5" />
                     {t('selected')}
                   </motion.span>
                 )}
@@ -116,7 +125,7 @@ export function WebMobileLead() {
                 {frame.phone}
               </div>
               <div className={cn('mt-4 flex min-h-11 items-center justify-center gap-2 rounded-full text-[12px] font-bold transition-colors duration-300', frame.formStatus === 'sent' ? 'bg-[#0e0e11] text-white' : 'bg-neutral-900/[0.07] text-neutral-900/35')}>
-                <Send size={14} aria-hidden="true" />
+                <Ico name="solar:arrow-right-bold-duotone" className="h-3.5 w-3.5" />
                 {t('formSent')}
               </div>
               <p className="mt-4 text-center text-[10px] leading-relaxed text-neutral-900/35">{t('fictional')}</p>
@@ -132,8 +141,8 @@ export function WebMobileLead() {
                 animate={{ y: 0, x: 0, opacity: 1 }}
                 className="z-10 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand)] text-[#0e0e11] shadow-[0_0_18px_color-mix(in_srgb,var(--brand)_65%,transparent)]"
               >
-                <ArrowDown className="md:hidden" size={17} />
-                <ArrowRight className="hidden md:block" size={17} />
+                <Ico name="solar:arrow-down-bold-duotone" className="h-[17px] w-[17px] md:hidden" />
+                <Ico name="solar:arrow-right-bold-duotone" className="hidden h-[17px] w-[17px] md:block" />
               </motion.span>
             )}
           </div>
@@ -141,11 +150,11 @@ export function WebMobileLead() {
           <div className="min-h-[285px] rounded-2xl bg-[#0e0e11] p-5 text-white shadow-[0_20px_44px_-30px_rgba(0,0,0,0.55)] md:p-6">
             <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
               <span className="flex items-center gap-2 text-[13px] font-semibold text-white/65">
-                <Inbox size={16} aria-hidden="true" />
+                <Ico name="solar:chat-round-dots-bold-duotone" className="h-4 w-4" />
                 {t('ownerInbox')}
               </span>
               <span className={cn('flex h-8 w-8 items-center justify-center rounded-full', frame.ownerInbox === 'new-lead' ? 'bg-[var(--brand)] text-[#0e0e11]' : 'bg-white/[0.06] text-white/30')}>
-                <Bell size={14} aria-hidden="true" />
+                <Ico name="solar:user-plus-rounded-bold-duotone" className="h-3.5 w-3.5" />
               </span>
             </div>
             <div className="mt-5" aria-live="polite">
@@ -158,7 +167,7 @@ export function WebMobileLead() {
                     className="rounded-2xl bg-white p-5 text-neutral-900"
                   >
                     <span className="flex items-center gap-2 text-[12px] font-bold text-[var(--brand-ink)]">
-                      <Check size={14} aria-hidden="true" />
+                      <Ico name="solar:check-circle-bold-duotone" className="h-3.5 w-3.5" />
                       {t('leadCreated')}
                     </span>
                     <p className="mt-4 text-[14px] font-bold">{t('service')}</p>

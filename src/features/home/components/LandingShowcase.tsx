@@ -9,14 +9,11 @@ import { WebPriceFlip } from '@/features/showcase/WebPriceFlip';
 /* =========================================================================
    LandingShowcase: the aiWEB product slot.
 
-   Five sections, and the order is the argument:
+   Five sections, in the order a business owner needs them:
 
-     1. Watch one get built. The signature, and the only place the boldness is spent.
-        A stranger types his own business name and sees a site assemble while a speed
-        gauge climbs. He now knows what we do and that it is fast, without reading.
+     1. Watch a complete example site assemble and try another business type.
      2. Watch an owner request become the version customers can actually see.
-     3. Why speed is the argument, with the one number in this category that has real
-        evidence behind it, and its source printed at the same size.
+     3. Compare a blocked page with a ready-to-use page, without invented revenue claims.
      4. Watch a phone booking arrive as an owner lead.
      5. Pay once or pay monthly, shown as a shape rather than argued as a price.
    ========================================================================= */

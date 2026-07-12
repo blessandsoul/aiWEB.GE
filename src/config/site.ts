@@ -46,7 +46,7 @@ export const SITE = {
   manifest: {
     name: "aiWEB",
     short: "aiWEB",
-    description: "Websites for Georgian business, built fast and kept alive.",
+    description: "Business websites built and maintained by aiNOW.",
     background: "#fbfcfc",
     theme: "#06b6d4",
   },
@@ -65,41 +65,42 @@ export const SITE = {
    */
   seo: {
     disambiguating:
-      "A website service for Georgian small business where the build costs nothing upfront and the customer pays monthly for the site to be kept fast, findable and up to date. It is not a one-off web-design shop and it is not a DIY site builder.",
-    serviceType: "Website build and care plan, paid monthly, for Georgian small business",
+      "aiWEB is aiNOW's website creation and maintenance service for businesses in Georgia. aiNOW plans the site, prepares the copy, builds the mobile and desktop pages, and handles updates under an agreed care plan. It is not a DIY builder or a customer-chat service.",
+    serviceType: "Business website design, build, and ongoing maintenance",
     audienceName:
       "Georgian small businesses: clinics, restaurants, construction firms, auto services, tourism, shops",
     areaServed: "GE",
     knowsAbout: [
-      "Web development",
-      "Next.js",
-      "Core Web Vitals",
-      "Site speed",
-      "Website as a service",
-      "Local SEO Georgia",
-      "Answer engine optimization",
+      "Business websites",
+      "Mobile website design",
+      "Website copy",
+      "Website performance",
       "Website maintenance",
+      "Local business information",
+      "Search-friendly site structure",
+      "Website forms",
     ],
     features: [
-      "A website with nothing to pay upfront, billed monthly",
-      "Live in 10 working days, on a real URL, not a screenshot",
-      "Georgian copy written for you, so you do not have to write anything",
-      "Built to load fast on a phone on Georgian mobile internet",
-      "Price changes, new pages and fixes are included in the monthly fee",
-      "Structured so a search assistant can read and cite the page",
+      "Scope, schedule and care terms agreed before work starts",
+      "A working preview reviewed on a real page before launch",
+      "Website copy prepared by aiNOW and approved by the business",
+      "Mobile and desktop layouts checked before launch",
+      "Forms, buttons and contact paths tested before launch",
+      "Agreed updates and technical care handled after launch",
+      "Structured content that search systems can understand",
     ],
     boundary:
-      "aiWEB is the website itself: the build, the speed, being found, and someone keeping it alive. The AI agent that chats to your customers on the site, Messenger, Instagram and Viber is aiSTAFF.ge. The agent that phones them is aiCALL.ge.",
+      "aiWEB creates and maintains the website. aiSTAFF handles written customer messages. aiCALL manages the phone-call process.",
     limits: [
-      "We do not promise a Google ranking. Nobody honestly can.",
-      "We do not promise you will be cited by ChatGPT. We make the page technically citable, which is a different and much smaller claim.",
-      "We do not quote chatbot conversion-lift percentages. The figures that circulate come from vendor blogs with no methodology behind them.",
-      "We cannot promise a top performance score on a stack we do not control, such as a WordPress site full of plugins.",
+      "aiNOW does not promise a specific Google ranking.",
+      "aiNOW does not promise that an assistant will mention or cite the website.",
+      "Search visibility depends on the market, content and other factors outside the website build.",
+      "Performance recommendations require measurement of the actual website and its third-party services.",
     ],
     commitment:
-      "Live in 10 working days or the first month is free.",
+      "aiNOW agrees the scope, schedule, ownership, handover and care terms before work starts.",
     summary:
-      "aiWEB builds websites for Georgian small businesses with nothing to pay upfront, billed monthly, and the monthly fee buys the thing that actually matters after launch: someone who keeps the site fast, keeps it findable, and changes the price list when the prices change. The position is deliberately blunt about its own category. AI has collapsed the cost of building a site, so the build is close to worthless and the care is the product. Built by the aiNOW agency in Tbilisi.",
+      "aiWEB is aiNOW's website service for businesses in Georgia. aiNOW plans the pages, prepares the copy, builds the site, checks it with the client and handles agreed updates after launch. The business keeps control of the content, domain and approval process.",
   },
 } as const;
 

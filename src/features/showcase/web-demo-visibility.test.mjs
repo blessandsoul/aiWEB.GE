@@ -2,191 +2,185 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { createDemoLoop } from '../home/components/lib/demo-loop.mjs';
+
 const COMPONENTS = [
-  {
-    file: 'WebLiveUpdate.tsx',
-    root: /<div ref=\{sectionRef\} className="grid items-center gap-10/,
-  },
-  {
-    file: 'WebMobileLead.tsx',
-    root: /<div\s+ref=\{sectionRef\}\s+className="mt-10 overflow-hidden rounded-3xl/,
-  },
+  'WebLiveUpdate.tsx',
+  'WebMobileLead.tsx',
+  'WebSpeedDuel.tsx',
+  'WebPriceFlip.tsx',
+  'HeroProof.tsx',
 ];
+const BUNDLED_ICON_COMPONENTS = ['WebLiveUpdate.tsx', 'WebMobileLead.tsx'];
+const solarIconRegistry = readFileSync(
+  new URL('../../components/common/solar-icons.ts', import.meta.url),
+  'utf8',
+);
 
-test('timeline stays stopped until its section intersects, then plays exactly once', async () => {
-  const { startTimelineWhenVisible } = await import('./web-demo-visibility.mjs');
-  const observer = createObserverHarness();
-  const node = { id: 'demo-section' };
-  let playCount = 0;
-
-  const cleanup = startTimelineWhenVisible({
-    node,
-    reducedMotion: false,
-    play: () => {
-      playCount += 1;
-    },
-    createObserver: observer.create,
-  });
-
-  assert.equal(playCount, 0);
-  assert.equal(observer.observedNode(), node);
-  assert.deepEqual(observer.options(), { threshold: 0.35 });
-
-  observer.trigger(0, false);
-  assert.equal(playCount, 0);
-
-  observer.trigger(0, true, 0.34);
-  assert.equal(playCount, 0);
-
-  observer.trigger(0, true, 0.35);
-  observer.trigger(0, true, 1);
-  assert.equal(playCount, 1);
-  assert.equal(observer.disconnectCount(), 1);
-
-  cleanup();
-  assert.equal(observer.disconnectCount(), 1);
-});
-
-test('cleanup invalidates a queued callback and disconnects only once', async () => {
-  const { startTimelineWhenVisible } = await import('./web-demo-visibility.mjs');
-  const observer = createObserverHarness();
-  let playCount = 0;
-
-  const cleanup = startTimelineWhenVisible({
-    node: { id: 'demo-section' },
-    reducedMotion: false,
-    play: () => {
-      playCount += 1;
-    },
-    createObserver: observer.create,
-  });
-
-  cleanup();
-  cleanup();
-  observer.trigger(0, true, 0.35);
-
-  assert.equal(playCount, 0);
-  assert.equal(observer.disconnectCount(0), 1);
-});
-
-test('Strict Mode cleanup isolates a stale setup from the replacement setup', async () => {
-  const { startTimelineWhenVisible } = await import('./web-demo-visibility.mjs');
-  const observer = createObserverHarness();
-  let stalePlays = 0;
-  let currentPlays = 0;
-
-  const cleanupStale = startTimelineWhenVisible({
-    node: { id: 'stale-section' },
-    reducedMotion: false,
-    play: () => {
-      stalePlays += 1;
-    },
-    createObserver: observer.create,
-  });
-  cleanupStale();
-
-  const cleanupCurrent = startTimelineWhenVisible({
-    node: { id: 'current-section' },
-    reducedMotion: false,
-    play: () => {
-      currentPlays += 1;
-    },
-    createObserver: observer.create,
-  });
-
-  observer.trigger(0, true, 0.35);
-  observer.trigger(1, true, 0.35);
-  observer.trigger(0, true, 1);
-
-  assert.equal(stalePlays, 0);
-  assert.equal(currentPlays, 1);
-  assert.equal(observer.disconnectCount(0), 1);
-  assert.equal(observer.disconnectCount(1), 1);
-
-  cleanupCurrent();
-});
-
-test('reduced motion emits the player result immediately without creating an observer', async () => {
-  const { startTimelineWhenVisible } = await import('./web-demo-visibility.mjs');
-  let playCount = 0;
-  let observerCount = 0;
-
-  const cleanup = startTimelineWhenVisible({
-    node: { id: 'demo-section' },
-    reducedMotion: true,
-    play: () => {
-      playCount += 1;
-    },
-    createObserver: () => {
-      observerCount += 1;
-      throw new Error('reduced motion must not create an observer');
-    },
-  });
-
-  assert.equal(playCount, 1);
-  assert.equal(observerCount, 0);
-  cleanup();
-});
-
-test('missing IntersectionObserver falls back to an immediate first pass', async () => {
-  const { startTimelineWhenVisible } = await import('./web-demo-visibility.mjs');
-  let playCount = 0;
-
-  assert.equal(typeof globalThis.IntersectionObserver, 'undefined');
-  const cleanup = startTimelineWhenVisible({
-    node: { id: 'demo-section' },
-    reducedMotion: false,
-    play: () => {
-      playCount += 1;
-    },
-  });
-
-  assert.equal(playCount, 1);
-  cleanup();
-});
-
-for (const { file, root } of COMPONENTS) {
-  test(`${file} wires its real box through the shared gate`, () => {
+test('aiWEB stories use the canonical visible loop instead of the one-shot gate', () => {
+  for (const file of COMPONENTS) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.match(source, /createDemoLoop/u, file);
+    assert.doesNotMatch(source, /startTimelineWhenVisible/u, file);
+  }
+});
 
-    assert.match(source, /import \{ startTimelineWhenVisible \} from '\.\/web-demo-visibility\.mjs';/);
-    assert.match(source, /const sectionRef = useRef<HTMLDivElement \| null>\(null\);/);
+test('speed and price samples permanently yield to visitor input', () => {
+  for (const file of ['WebSpeedDuel.tsx', 'WebPriceFlip.tsx']) {
+    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.match(source, /takeControl\(\)/u, file);
+  }
+});
+
+test('live update and mobile lead use only bundled Solar Ico components', () => {
+  for (const file of BUNDLED_ICON_COMPONENTS) {
+    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.doesNotMatch(source, /from ['"]lucide-react['"]/u, file);
     assert.match(
       source,
-      /startTimelineWhenVisible\(\{[\s\S]*?node: sectionRef\.current,[\s\S]*?play: player\.play,[\s\S]*?\}\)/,
+      /import\s+\{\s*Ico\s*\}\s+from\s+['"]@\/components\/common\/Ico['"]/u,
+      file,
     );
-    assert.match(source, root);
-    assert.match(source, /stopVisibility\(\);[\s\S]*?player\.cancel\(\);/);
-    assert.doesNotMatch(source, /player\.play\(\)/);
+    assert.doesNotMatch(
+      source,
+      /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}✓✔✕→←➜]/u,
+      file,
+    );
+
+    const iconNames = new Set(source.match(/solar:[a-z0-9-]+/gu) ?? []);
+    assert.ok(iconNames.size >= 4, `${file} should use semantic Solar icons`);
+    for (const iconName of iconNames) {
+      const key = iconName.slice('solar:'.length);
+      assert.match(solarIconRegistry, new RegExp(`"${key}":`, 'u'), iconName);
+    }
+  }
+});
+
+test('canonical loop repeats a 7200ms story after a 2000ms hold only while visible', () => {
+  const harness = createHarness();
+  const observer = harness.observers[0];
+
+  assert.deepEqual(observer.options, { threshold: 0.35 });
+  observer.emit(0.34, true);
+  assert.deepEqual(harness.calls, []);
+
+  observer.emit(0.35, true);
+  assert.deepEqual(harness.calls, ['play']);
+  assert.equal(harness.clock.pending()[0].delay, 9_200);
+
+  harness.clock.fire(harness.clock.pending()[0].id);
+  assert.deepEqual(harness.calls, ['play', 'stop', 'reset', 'play']);
+
+  observer.emit(0, false);
+  assert.deepEqual(harness.calls.slice(-2), ['stop', 'reset']);
+  assert.equal(harness.clock.pending().length, 0);
+
+  observer.emit(0.8, true);
+  assert.equal(harness.calls.at(-1), 'play');
+});
+
+test('hidden state resets autoplay, controlled state stops without restarting, and reduced motion is static', () => {
+  const harness = createHarness();
+  const observer = harness.observers[0];
+  observer.emit(0.8, true);
+
+  harness.page.setHidden(true);
+  assert.deepEqual(harness.calls.slice(-2), ['stop', 'reset']);
+  harness.page.setHidden(false);
+  assert.equal(harness.calls.at(-1), 'play');
+
+  harness.controller.takeControl();
+  const callsAfterControl = harness.calls.length;
+  harness.page.setHidden(true);
+  assert.equal(harness.calls.at(-1), 'stop');
+  harness.page.setHidden(false);
+  observer.emit(0, false);
+  observer.emit(0.8, true);
+  assert.equal(harness.calls.filter((item) => item === 'play').length, 2);
+  assert.ok(harness.calls.length > callsAfterControl);
+
+  const reducedCalls = [];
+  createDemoLoop({
+    target: {},
+    reducedMotion: true,
+    cycleMs: 7_200,
+    play: () => reducedCalls.push('play'),
+    showFinal: () => reducedCalls.push('final'),
+    reset: () => reducedCalls.push('reset'),
+    stop: () => reducedCalls.push('stop'),
+    Observer: class { constructor() { throw new Error('no observer in reduced motion'); } },
   });
-}
+  assert.deepEqual(reducedCalls, ['final']);
+});
 
-function createObserverHarness() {
+function createHarness() {
+  const calls = [];
   const observers = [];
+  const listeners = new Map();
+  let nextId = 1;
+  const jobs = new Map();
 
-  return {
-    create(nextCallback, options) {
-      const observer = {
-        callback: nextCallback,
-        node: null,
-        options,
-        disconnects: 0,
-      };
-      observers.push(observer);
-      return {
-        observe(node) {
-          observer.node = node;
-        },
-        disconnect() {
-          observer.disconnects += 1;
-        },
-      };
+  class Observer {
+    constructor(callback, options) {
+      this.callback = callback;
+      this.options = options;
+      this.target = null;
+      observers.push(this);
+    }
+    observe(target) { this.target = target; }
+    disconnect() {}
+    emit(intersectionRatio, isIntersecting = intersectionRatio > 0) {
+      this.callback([{ target: this.target, intersectionRatio, isIntersecting }]);
+    }
+  }
+
+  const page = {
+    hidden: false,
+    addEventListener(type, callback) { listeners.set(type, callback); },
+    removeEventListener(type, callback) {
+      if (listeners.get(type) === callback) listeners.delete(type);
     },
-    trigger(index, isIntersecting, intersectionRatio = isIntersecting ? 1 : 0) {
-      observers[index]?.callback([{ isIntersecting, intersectionRatio }]);
+    setHidden(hidden) {
+      this.hidden = hidden;
+      listeners.get('visibilitychange')?.();
     },
-    observedNode: (index = 0) => observers[index]?.node,
-    options: (index = 0) => observers[index]?.options,
-    disconnectCount: (index = 0) => observers[index]?.disconnects ?? 0,
   };
+
+  const clock = {
+    schedule(callback, delay) {
+      const id = nextId++;
+      jobs.set(id, { id, callback, delay, cancelled: false });
+      return id;
+    },
+    cancel(id) {
+      const job = jobs.get(id);
+      if (job) job.cancelled = true;
+    },
+    pending() {
+      return [...jobs.values()].filter((job) => !job.cancelled);
+    },
+    fire(id) {
+      const job = jobs.get(id);
+      assert.ok(job);
+      jobs.delete(id);
+      if (!job.cancelled) job.callback();
+    },
+  };
+
+  const target = { id: 'web-demo' };
+  const controller = createDemoLoop({
+    target,
+    cycleMs: 7_200,
+    holdMs: 2_000,
+    play: () => calls.push('play'),
+    showFinal: () => calls.push('final'),
+    reset: () => calls.push('reset'),
+    stop: () => calls.push('stop'),
+    Observer,
+    pageDocument: page,
+    schedule: clock.schedule,
+    cancelScheduled: clock.cancel,
+  });
+
+  return { calls, observers, page, clock, controller };
 }
