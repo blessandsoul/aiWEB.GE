@@ -1,22 +1,30 @@
+const VISIBILITY_THRESHOLD = 0.35;
+
 export function startTimelineWhenVisible({
   node,
   reducedMotion,
   play,
   createObserver = undefined,
 }) {
+  let active = true;
   let hasPlayed = false;
   let observer = null;
 
   const playOnce = () => {
-    if (hasPlayed) return false;
+    if (!active || hasPlayed) return false;
     hasPlayed = true;
     play();
     return true;
   };
 
-  const disconnect = () => {
+  const disconnectObserver = () => {
     observer?.disconnect();
     observer = null;
+  };
+
+  const stop = () => {
+    active = false;
+    disconnectObserver();
   };
 
   const observerFactory = createObserver ?? (
@@ -27,17 +35,21 @@ export function startTimelineWhenVisible({
 
   if (reducedMotion || !node || !observerFactory) {
     playOnce();
-    return disconnect;
+    return stop;
   }
 
   observer = observerFactory(
     ([entry]) => {
-      if (!entry?.isIntersecting || !playOnce()) return;
-      disconnect();
+      if (
+        !entry?.isIntersecting
+        || entry.intersectionRatio < VISIBILITY_THRESHOLD
+        || !playOnce()
+      ) return;
+      disconnectObserver();
     },
-    { threshold: 0.35 },
+    { threshold: VISIBILITY_THRESHOLD },
   );
   observer.observe(node);
 
-  return disconnect;
+  return stop;
 }
