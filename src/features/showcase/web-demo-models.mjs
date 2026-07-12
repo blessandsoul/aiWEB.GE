@@ -7,6 +7,45 @@ export const MOBILE_LEAD_STAGES = [
   'delivered',
 ];
 
+const BUILD_STAGES = Object.freeze({
+  chrome: 0,
+  nav: 520,
+  hero: 1_180,
+  visual: 2_100,
+  services: 3_050,
+  proof: 4_150,
+  contact: 4_950,
+  done: 7_200,
+});
+
+export const WEB_BUILD_TIMING = Object.freeze({
+  cycleMs: 7_200,
+  holdMs: 2_000,
+  stages: BUILD_STAGES,
+  transitions: Object.freeze(
+    Object.values(BUILD_STAGES).map((state) => Object.freeze({ at: state, state })),
+  ),
+});
+
+export const WEB_SPEED_TIMING = Object.freeze({
+  cycleMs: 7_000,
+  holdMs: 2_000,
+  transitions: Object.freeze([
+    Object.freeze({ at: 0, state: 'slow' }),
+    Object.freeze({ at: 2_300, state: 'ok' }),
+    Object.freeze({ at: 7_000, state: 'fast' }),
+  ]),
+});
+
+export const WEB_PRICE_TIMING = Object.freeze({
+  cycleMs: 6_400,
+  holdMs: 2_000,
+  transitions: Object.freeze([
+    Object.freeze({ at: 0, state: 'once' }),
+    Object.freeze({ at: 6_400, state: 'monthly' }),
+  ]),
+});
+
 const LIVE_UPDATE_FRAMES = {
   request: {
     editorVersion: 'old',
@@ -138,4 +177,42 @@ export function createTimelinePlayer({
     reset,
     showFinal,
   };
+}
+
+export function createTimedStatePlayer({
+  timing,
+  onState,
+  setTimeoutFn = setTimeout,
+  clearTimeoutFn = clearTimeout,
+}) {
+  let timers = [];
+  const transitions = timing?.transitions ?? [];
+
+  const cancel = () => {
+    timers.forEach((timer) => clearTimeoutFn(timer));
+    timers = [];
+  };
+
+  const play = () => {
+    cancel();
+    if (transitions.length === 0) return;
+
+    const [first, ...rest] = transitions;
+    onState(first.state);
+    timers = rest.map(({ at, state }) =>
+      setTimeoutFn(() => onState(state), at),
+    );
+  };
+
+  const reset = () => {
+    cancel();
+    if (transitions.length > 0) onState(transitions[0].state);
+  };
+
+  const showFinal = () => {
+    cancel();
+    if (transitions.length > 0) onState(transitions.at(-1).state);
+  };
+
+  return { play, replay: play, cancel, reset, showFinal };
 }

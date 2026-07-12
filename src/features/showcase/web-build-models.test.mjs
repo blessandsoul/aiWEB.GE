@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import * as buildModels from './web-build-models.mjs';
 import {
   BUILD_INDUSTRIES,
   buildPreview,
@@ -74,4 +75,27 @@ test('animated Georgian headings preserve real whitespace', () => {
     'აშენებული ისე, რომ იდგეს',
   );
   assert.equal(joinAnimatedWords('  ერთი   ორი  '), 'ერთი ორი');
+});
+
+test('compact observer target can cross the canonical threshold in a 342x720 viewport', () => {
+  const geometry = buildModels.WEB_BUILD_OBSERVER_GEOMETRY;
+  const measure = buildModels.measureVerticalIntersectionRatio;
+
+  assert.ok(geometry, 'export the observer geometry consumed by WebBuildLive');
+  assert.equal(typeof measure, 'function');
+  assert.equal(geometry.threshold, 0.35);
+  assert.ok(geometry.targetHeightPx > 0);
+  assert.ok(geometry.targetHeightPx < 720);
+
+  const compactRatio = measure({
+    targetHeightPx: geometry.targetHeightPx,
+    visibleHeightPx: Math.min(720, geometry.targetHeightPx),
+  });
+  assert.ok(compactRatio >= geometry.threshold);
+
+  const oldFullGridRatio = measure({
+    targetHeightPx: 2_289,
+    visibleHeightPx: 720,
+  });
+  assert.ok(oldFullGridRatio < geometry.threshold);
 });

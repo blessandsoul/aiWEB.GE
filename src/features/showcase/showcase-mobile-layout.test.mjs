@@ -143,8 +143,12 @@ test('site builder uses the canonical visible autoplay loop with replay and manu
     /import\s+\{\s*createDemoLoop\s*\}\s+from\s+['"]@\/features\/home\/components\/lib\/demo-loop\.mjs['"]/u,
   );
   assert.match(webBuildSource, /\bcreateDemoLoop\s*\(\s*\{/u);
-  assert.match(webBuildSource, /threshold:\s*0\.35/u);
-  assert.match(webBuildSource, /holdMs:\s*2_?000/u);
+  assert.match(
+    webBuildSource,
+    /threshold:\s*WEB_BUILD_OBSERVER_GEOMETRY\.threshold/u,
+  );
+  assert.match(webBuildSource, /cycleMs:\s*WEB_BUILD_TIMING\.cycleMs/u);
+  assert.match(webBuildSource, /holdMs:\s*WEB_BUILD_TIMING\.holdMs/u);
   assert.match(webBuildSource, /reducedMotion:\s*Boolean\(reduced\)/u);
   assert.match(webBuildSource, /showFinal\s*[:,]/u);
   assert.match(webBuildSource, /reset\s*[:,]/u);
@@ -154,18 +158,31 @@ test('site builder uses the canonical visible autoplay loop with replay and manu
   assert.match(webBuildSource, /t\(['"]replay['"]\)/u);
   assert.doesNotMatch(webBuildSource, /\bhasPlayed\b/u);
 
-  const cycle = webBuildSource.match(
-    /const\s+(?:BUILD_)?CYCLE_MS\s*=\s*([\d_]+)/u,
-  );
-  assert.ok(cycle, 'declare one deterministic build cycle');
-  const cycleMs = Number(cycle[1].replaceAll('_', ''));
-  assert.ok(cycleMs >= 6_000 && cycleMs <= 10_000);
-
   const directControlCalls = webBuildSource.match(/\.takeControl\s*\(\s*\)/gu) ?? [];
   const delegatedControlCalls = webBuildSource.match(/\btakeControl\s*\(\s*\)\s*;/gu) ?? [];
   assert.ok(
     directControlCalls.length >= 2 || delegatedControlCalls.length >= 2,
     'name and industry interactions must both stop autoplay before changing visitor values',
+  );
+});
+
+test('site builder observes a compact sticky sentinel instead of its full mobile grid', () => {
+  assert.match(webBuildSource, /const\s+observerRef\s*=\s*useRef/u);
+  assert.match(webBuildSource, /const\s+target\s*=\s*observerRef\.current/u);
+  assert.doesNotMatch(webBuildSource, /const\s+target\s*=\s*sectionRef\.current/u);
+  assert.match(
+    webBuildSource,
+    /ref=\{observerRef\}[\s\S]{0,500}data-web-build-observer/u,
+  );
+  assert.match(
+    webBuildSource,
+    /data-web-build-observer[\s\S]{0,500}\bsticky\b[\s\S]{0,500}\btop-/u,
+    'the compact target should remain visible while the tall builder is in view',
+  );
+  assert.match(
+    webBuildSource,
+    /height:\s*WEB_BUILD_OBSERVER_GEOMETRY\.targetHeightPx/u,
+    'the rendered sentinel must consume the tested geometry contract',
   );
 });
 

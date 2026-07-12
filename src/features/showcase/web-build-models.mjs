@@ -1,5 +1,18 @@
 export const BUILD_INDUSTRIES = ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'];
 
+export const WEB_BUILD_OBSERVER_GEOMETRY = Object.freeze({
+  threshold: 0.35,
+  targetHeightPx: 96,
+});
+
+export function measureVerticalIntersectionRatio({ targetHeightPx, visibleHeightPx }) {
+  const targetHeight = Number(targetHeightPx);
+  const visibleHeight = Number(visibleHeightPx);
+  if (!Number.isFinite(targetHeight) || targetHeight <= 0) return 0;
+  if (!Number.isFinite(visibleHeight) || visibleHeight <= 0) return 0;
+  return Math.min(visibleHeight, targetHeight) / targetHeight;
+}
+
 const PREVIEWS = {
   i1: {
     theme: { accent: '#2563eb', soft: '#eaf2ff', ink: '#10213d', surface: '#f8fbff' },

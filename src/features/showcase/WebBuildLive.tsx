@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Ico } from '@/components/common/Ico';
@@ -10,32 +10,25 @@ import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 import { cn } from '@/lib/utils';
 import {
   BUILD_INDUSTRIES,
+  WEB_BUILD_OBSERVER_GEOMETRY,
   buildPreview,
   joinAnimatedWords,
 } from './web-build-models.mjs';
+import {
+  WEB_BUILD_TIMING,
+  createTimedStatePlayer,
+} from './web-demo-models.mjs';
 
 type Industry = 'i1' | 'i2' | 'i3' | 'i4' | 'i5' | 'i6';
 
 const INDUSTRIES = BUILD_INDUSTRIES as Industry[];
-const BUILD_CYCLE_MS = 7_200;
-const BUILD_STAGE = {
-  chrome: 0,
-  nav: 520,
-  hero: 1_180,
-  visual: 2_100,
-  services: 3_050,
-  proof: 4_150,
-  contact: 4_950,
-  done: 5_650,
-} as const;
+const BUILD_STAGE = WEB_BUILD_TIMING.stages;
 
 export function WebBuildLive() {
   const t = useTranslations('product.build');
   const reduced = useReducedMotion();
-  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<HTMLSpanElement | null>(null);
   const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const rafRef = useRef<number | null>(null);
   const visitorLockedRef = useRef(false);
   const autoplayIndustryRef = useRef(2);
 
@@ -44,62 +37,63 @@ export function WebBuildLive() {
   const [stage, setStage] = useState(-1);
   const [progress, setProgress] = useState(0);
 
-  const stop = useCallback(() => {
-    timersRef.current.forEach(clearTimeout);
-    timersRef.current = [];
-    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    rafRef.current = null;
-  }, []);
-
-  const reset = useCallback(() => {
-    stop();
-    setStage(-1);
-    setProgress(0);
-  }, [stop]);
-
-  const showFinal = useCallback(() => {
-    stop();
-    setStage(BUILD_STAGE.done);
-    setProgress(100);
-  }, [stop]);
-
-  const play = useCallback(() => {
-    stop();
-
-    if (!visitorLockedRef.current) {
-      const nextIndustry = INDUSTRIES[autoplayIndustryRef.current % INDUSTRIES.length];
-      autoplayIndustryRef.current += 1;
-      setIndustry(nextIndustry);
-    }
-
-    setStage(BUILD_STAGE.chrome);
-    setProgress(4);
-
-    Object.values(BUILD_STAGE).slice(1).forEach((milliseconds) => {
-      timersRef.current.push(setTimeout(() => setStage(milliseconds), milliseconds));
-    });
-
-    const startedAt = performance.now();
-    const tick = () => {
-      const elapsed = performance.now() - startedAt;
-      const nextProgress = Math.min(elapsed / BUILD_STAGE.done, 1);
-      setProgress(Math.max(4, Math.round(nextProgress * 100)));
-      if (nextProgress < 1) rafRef.current = requestAnimationFrame(tick);
-      else rafRef.current = null;
-    };
-    rafRef.current = requestAnimationFrame(tick);
-  }, [stop]);
-
   useEffect(() => {
-    const target = sectionRef.current;
+    const target = observerRef.current;
     if (!target) return;
+
+    const player = createTimedStatePlayer({
+      timing: WEB_BUILD_TIMING,
+      onState: (nextStage: number) => setStage(nextStage),
+    });
+    let raf: number | null = null;
+
+    const stop = () => {
+      player.cancel();
+      if (raf !== null) cancelAnimationFrame(raf);
+      raf = null;
+    };
+
+    const reset = () => {
+      stop();
+      setStage(-1);
+      setProgress(0);
+    };
+
+    const showFinal = () => {
+      stop();
+      player.showFinal();
+      setProgress(100);
+    };
+
+    const play = () => {
+      stop();
+
+      if (!visitorLockedRef.current) {
+        const nextIndustry = INDUSTRIES[autoplayIndustryRef.current % INDUSTRIES.length];
+        autoplayIndustryRef.current += 1;
+        setIndustry(nextIndustry);
+      }
+
+      player.play();
+      setProgress(4);
+
+      const startedAt = performance.now();
+      const tick = () => {
+        const elapsed = performance.now() - startedAt;
+        const nextProgress = Math.min(elapsed / WEB_BUILD_TIMING.cycleMs, 1);
+        setProgress(Math.max(4, Math.round(nextProgress * 100)));
+        if (nextProgress < 1) raf = requestAnimationFrame(tick);
+        else raf = null;
+      };
+      raf = requestAnimationFrame(tick);
+    };
 
     const controller = createDemoLoop({
       target,
       reducedMotion: Boolean(reduced),
-      threshold: 0.35,
-      cycleMs: BUILD_CYCLE_MS,
-      holdMs: 2_000,
+      threshold: WEB_BUILD_OBSERVER_GEOMETRY.threshold,
+      cycleMs: WEB_BUILD_TIMING.cycleMs,
+      holdMs: WEB_BUILD_TIMING.holdMs,
       play,
       showFinal,
       reset,
@@ -111,7 +105,7 @@ export function WebBuildLive() {
       controller.cleanup();
       if (controllerRef.current === controller) controllerRef.current = null;
     };
-  }, [play, reduced, reset, showFinal, stop]);
+  }, [reduced]);
 
   const preview = useMemo(() => buildPreview(industry, name), [industry, name]);
   const displayName = preview.fictional ? t('sampleName') : preview.businessName;
@@ -125,14 +119,16 @@ export function WebBuildLive() {
     visitorLockedRef.current = true;
     controllerRef.current?.takeControl();
     setName(nextName);
-    showFinal();
+    setStage(BUILD_STAGE.done);
+    setProgress(100);
   };
 
   const handleIndustryChange = (nextIndustry: Industry) => {
     visitorLockedRef.current = true;
     controllerRef.current?.takeControl();
     setIndustry(nextIndustry);
-    showFinal();
+    setStage(BUILD_STAGE.done);
+    setProgress(100);
   };
 
   const previewStyle = {
@@ -145,11 +141,18 @@ export function WebBuildLive() {
   return (
     <SectionContainer className="py-20 md:py-28">
       <div
-        ref={sectionRef}
-        className="grid min-w-0 items-start gap-10 xl:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] xl:gap-14"
+        className="relative grid min-w-0 items-start gap-10 xl:grid-cols-[minmax(300px,380px)_minmax(0,1fr)] xl:gap-14"
       >
+        <span className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <span
+            ref={observerRef}
+            data-web-build-observer
+            className="sticky top-20 block w-full"
+            style={{ height: WEB_BUILD_OBSERVER_GEOMETRY.targetHeightPx }}
+          />
+        </span>
         <div className="min-w-0 xl:sticky xl:top-24">
-          <span className="text-[12px] uppercase tracking-wide text-neutral-900/40">
+          <span className="text-[12px] tracking-wide text-neutral-900/40">
             {t('eyebrow')}
           </span>
           <h2 className="mt-4 max-w-xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-neutral-900 md:text-4xl">
@@ -310,7 +313,7 @@ export function WebBuildLive() {
 
               <StageChunk show={at(BUILD_STAGE.services)} reduced={reduced}>
                 <section className="mt-3 min-w-0 rounded-3xl bg-white p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] sm:p-5">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-900/35">
+                  <span className="text-[10px] font-bold tracking-[0.14em] text-neutral-900/35">
                     {t('servicesLabel')}
                   </span>
                   <div className="mt-3 grid min-w-0 gap-2 sm:grid-cols-3">
@@ -350,7 +353,7 @@ export function WebBuildLive() {
 
                 <StageChunk show={at(BUILD_STAGE.contact)} reduced={reduced} delay={0.06}>
                   <div className="flex min-h-[112px] min-w-0 flex-col justify-center rounded-3xl bg-white p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-900/35">
+                    <span className="text-[10px] font-bold tracking-[0.14em] text-neutral-900/35">
                       {t('contactLabel')}
                     </span>
                     <span className="mt-3 flex min-w-0 items-center gap-2 text-[12px] font-bold text-[var(--preview-ink)]">

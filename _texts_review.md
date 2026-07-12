@@ -236,10 +236,6 @@ Where this text lives, if you would rather edit the source directly:
 | `product.speed.slow` | Painful | მტკივნეული | Медленно |
 | `product.speed.ok` | Fine | ნორმალური | Приемлемо |
 | `product.speed.fast` | Instant | მყისიერი | Быстро |
-| `product.speed.visitors` | Example monthly visits | ვიზიტების მაგალითი თვეში | Пример посещений за месяц |
-| `product.speed.ticket` | Example order value, GEL | შეკვეთის მაგალითი, ლარი | Пример стоимости заказа, лари |
-| `product.speed.result` | Illustrative result for comparison | საილუსტრაციო შედეგი შესადარებლად | Наглядный результат для сравнения |
-| `product.speed.perMonth` | example | მაგალითი | пример |
 | `product.speed.note` | This result is not promised revenue. aiNOW measures the real website before recommending priorities. | ეს შედეგი არ არის დაპირებული შემოსავალი. aiNOW რეალურ საიტს ჯერ ზომავს და მხოლოდ შემდეგ გთავაზობთ პრიორიტეტებს. | Этот результат не обещает доход. aiNOW сначала измеряет реальный сайт и только потом предлагает приоритеты. |
 | `product.speed.siteName` | Sample Studio | სატესტო სტუდია | Тестовая студия |
 | `product.speed.currentLabel` | Website now | საიტი ახლა | Сайт сейчас |

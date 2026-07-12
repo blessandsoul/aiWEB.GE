@@ -66,7 +66,7 @@ export function WebLiveUpdate() {
     <SectionContainer className="py-20 md:py-28">
       <div ref={sectionRef} className="grid min-w-0 items-center gap-10 lg:grid-cols-[minmax(260px,360px)_1fr] lg:gap-14">
         <div className="min-w-0">
-          <span className="text-[12px] uppercase tracking-wide text-neutral-900/40">
+          <span className="text-[12px] tracking-wide text-neutral-900/40">
             {t('eyebrow')}
           </span>
           <h2 className="mt-4 text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-neutral-900 md:text-4xl">
@@ -122,7 +122,7 @@ export function WebLiveUpdate() {
             transition={{ duration: reduced ? 0 : 0.25 }}
             className="ml-auto max-w-[330px] rounded-2xl rounded-tr-sm bg-white px-4 py-3 text-[13px] leading-relaxed text-neutral-900"
           >
-            <span className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-neutral-900/35">
+            <span className="mb-2 flex items-center gap-2 text-[11px] font-semibold tracking-wide text-neutral-900/35">
               <Ico name="solar:chat-round-dots-bold-duotone" className="h-3.5 w-3.5" />
               {t('eyebrow')}
             </span>

@@ -1,12 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Ico } from '@/components/common/Ico';
 import { SectionContainer } from '@/components/layout/SectionContainer';
 import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 import { cn } from '@/lib/utils';
+import {
+  WEB_PRICE_TIMING,
+  createTimedStatePlayer,
+} from './web-demo-models.mjs';
 
 /* =========================================================================
    WebPriceFlip: the argument made without a price.
@@ -53,7 +57,6 @@ const ONCE_WORK: { m: number; key: string }[] = [
 ];
 
 type Mode = 'once' | 'monthly';
-const CYCLE_MS = 6_400;
 
 export function WebPriceFlip() {
   const t = useTranslations('product.flip');
@@ -61,48 +64,31 @@ export function WebPriceFlip() {
   const [mode, setMode] = useState<Mode>('once');
   const rootRef = useRef<HTMLDivElement | null>(null);
   const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-  const stop = useCallback(() => {
-    timersRef.current.forEach(clearTimeout);
-    timersRef.current = [];
-  }, []);
-
-  const reset = useCallback(() => {
-    stop();
-    setMode('once');
-  }, [stop]);
-
-  const play = useCallback(() => {
-    reset();
-    timersRef.current = [setTimeout(() => setMode('monthly'), 3_400)];
-  }, [reset]);
-
-  const showFinal = useCallback(() => {
-    stop();
-    setMode('monthly');
-  }, [stop]);
 
   useEffect(() => {
     const target = rootRef.current;
     if (!target) return;
+    const player = createTimedStatePlayer({
+      timing: WEB_PRICE_TIMING,
+      onState: (nextMode: Mode) => setMode(nextMode),
+    });
     const controller = createDemoLoop({
       target,
       reducedMotion: Boolean(reduced),
       threshold: 0.35,
-      cycleMs: CYCLE_MS,
-      holdMs: 2_000,
-      play,
-      showFinal,
-      reset,
-      stop,
+      cycleMs: WEB_PRICE_TIMING.cycleMs,
+      holdMs: WEB_PRICE_TIMING.holdMs,
+      play: player.play,
+      showFinal: player.showFinal,
+      reset: player.reset,
+      stop: player.cancel,
     });
     controllerRef.current = controller;
     return () => {
       controller.cleanup();
       if (controllerRef.current === controller) controllerRef.current = null;
     };
-  }, [play, reduced, reset, showFinal, stop]);
+  }, [reduced]);
 
   const chooseMode = (next: Mode) => {
     controllerRef.current?.takeControl();
@@ -116,7 +102,7 @@ export function WebPriceFlip() {
       <div ref={rootRef} className="mx-auto min-w-0 max-w-5xl lg:ml-0">
         <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <span className="text-[12px] uppercase tracking-wide text-neutral-900/40">
+            <span className="text-[12px] tracking-wide text-neutral-900/40">
               {t('eyebrow')}
             </span>
             <h2 className="mt-4 max-w-2xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-neutral-900 md:text-4xl">
@@ -198,7 +184,7 @@ export function WebPriceFlip() {
             })}
           </div>
 
-          <div className="mt-1 flex items-baseline justify-between text-[11px] uppercase tracking-wide text-neutral-900/35">
+          <div className="mt-1 flex items-baseline justify-between text-[11px] tracking-wide text-neutral-900/35">
             <span>{t('launch')}</span>
             <span>
               {MONTHS} {t('month')}

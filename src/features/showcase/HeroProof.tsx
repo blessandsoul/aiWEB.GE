@@ -171,7 +171,7 @@ export function HeroProof() {
             {progress}
           </span>
         </span>
-        <span className="ml-3 block text-[9px] uppercase leading-tight tracking-wide text-white/35 sm:ml-0 sm:mt-2">
+        <span className="ml-3 block text-[9px] leading-tight tracking-wide text-white/35 sm:ml-0 sm:mt-2">
           {t('speed')}
         </span>
         <button

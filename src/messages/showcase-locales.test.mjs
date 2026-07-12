@@ -106,10 +106,8 @@ const EXPECTED_KEYS = {
     'improvedLabel',
     'note',
     'ok',
-    'perMonth',
     'quote',
     'replay',
-    'result',
     'result_fast',
     'result_ok',
     'result_slow',
@@ -117,8 +115,6 @@ const EXPECTED_KEYS = {
     'slow',
     'source',
     'subtitle',
-    'ticket',
-    'visitors',
     'yours',
   ],
   flip: [
@@ -207,6 +203,39 @@ test('speed copy contains no borrowed percentage claim', () => {
   for (const [locale, messages] of Object.entries(locales)) {
     const copy = JSON.stringify(messages.product.speed);
     assert.doesNotMatch(copy, /Deloitte|Milliseconds Make Millions|%/iu, `${locale} speed copy`);
+  }
+});
+
+test('speed locale contract no longer carries hidden-revenue calculator fields', () => {
+  const retiredKeys = ['visitors', 'ticket', 'result', 'perMonth'];
+
+  for (const [locale, messages] of Object.entries(locales)) {
+    for (const key of retiredKeys) {
+      assert.equal(
+        Object.hasOwn(messages.product.speed, key),
+        false,
+        `${locale}.product.speed.${key} must stay retired`,
+      );
+    }
+  }
+});
+
+test('Georgian showcase components never force visitor copy to uppercase', () => {
+  const components = [
+    'HeroProof.tsx',
+    'WebBuildLive.tsx',
+    'WebLiveUpdate.tsx',
+    'WebMobileLead.tsx',
+    'WebPriceFlip.tsx',
+    'WebSpeedDuel.tsx',
+  ];
+
+  for (const file of components) {
+    const source = readFileSync(
+      new URL(`../features/showcase/${file}`, import.meta.url),
+      'utf8',
+    );
+    assert.doesNotMatch(source, /\buppercase\b/u, file);
   }
 });
 

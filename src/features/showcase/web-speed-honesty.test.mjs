@@ -25,8 +25,10 @@ test('speed demo explains a visual before-and-after with bundled icons', () => {
 
 test('speed comparison still autoplays, loops, replays and yields to visitor input', () => {
   assert.match(source, /createDemoLoop/u);
-  assert.match(source, /cycleMs:\s*CYCLE_MS/u);
-  assert.match(source, /holdMs:\s*2_000/u);
+  assert.match(source, /createTimedStatePlayer/u);
+  assert.match(source, /timing:\s*WEB_SPEED_TIMING/u);
+  assert.match(source, /cycleMs:\s*WEB_SPEED_TIMING\.cycleMs/u);
+  assert.match(source, /holdMs:\s*WEB_SPEED_TIMING\.holdMs/u);
   assert.match(source, /\.takeControl\(\)/u);
   assert.match(source, /\.replay\(\)/u);
 });

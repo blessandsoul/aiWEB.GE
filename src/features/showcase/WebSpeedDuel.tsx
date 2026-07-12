@@ -1,18 +1,21 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Ico } from '@/components/common/Ico';
 import { SectionContainer } from '@/components/layout/SectionContainer';
 import { createDemoLoop } from '@/features/home/components/lib/demo-loop.mjs';
 import { cn } from '@/lib/utils';
+import {
+  WEB_SPEED_TIMING,
+  createTimedStatePlayer,
+} from './web-demo-models.mjs';
 import { SPEED_FEEL_GRID_TEMPLATE } from './web-speed-layout.mjs';
 
 type Feel = 'slow' | 'ok' | 'fast';
 
 const FEELS: Feel[] = ['slow', 'ok', 'fast'];
-const CYCLE_MS = 7_000;
 
 export function WebSpeedDuel() {
   const t = useTranslations('product.speed');
@@ -20,45 +23,26 @@ export function WebSpeedDuel() {
   const [feel, setFeel] = useState<Feel>('slow');
   const rootRef = useRef<HTMLDivElement | null>(null);
   const controllerRef = useRef<ReturnType<typeof createDemoLoop> | null>(null);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-  const stop = useCallback(() => {
-    timersRef.current.forEach(clearTimeout);
-    timersRef.current = [];
-  }, []);
-
-  const reset = useCallback(() => {
-    stop();
-    setFeel('slow');
-  }, [stop]);
-
-  const play = useCallback(() => {
-    reset();
-    timersRef.current = [
-      setTimeout(() => setFeel('ok'), 2_300),
-      setTimeout(() => setFeel('fast'), 4_700),
-    ];
-  }, [reset]);
-
-  const showFinal = useCallback(() => {
-    stop();
-    setFeel('fast');
-  }, [stop]);
 
   useEffect(() => {
     const target = rootRef.current;
     if (!target) return;
 
+    const player = createTimedStatePlayer({
+      timing: WEB_SPEED_TIMING,
+      onState: (nextFeel: Feel) => setFeel(nextFeel),
+    });
+
     const controller = createDemoLoop({
       target,
       reducedMotion: Boolean(reduced),
       threshold: 0.35,
-      cycleMs: CYCLE_MS,
-      holdMs: 2_000,
-      play,
-      showFinal,
-      reset,
-      stop,
+      cycleMs: WEB_SPEED_TIMING.cycleMs,
+      holdMs: WEB_SPEED_TIMING.holdMs,
+      play: player.play,
+      showFinal: player.showFinal,
+      reset: player.reset,
+      stop: player.cancel,
     });
     controllerRef.current = controller;
 
@@ -66,7 +50,7 @@ export function WebSpeedDuel() {
       controller.cleanup();
       if (controllerRef.current === controller) controllerRef.current = null;
     };
-  }, [play, reduced, reset, showFinal, stop]);
+  }, [reduced]);
 
   const chooseFeel = (nextFeel: Feel) => {
     controllerRef.current?.takeControl();
@@ -81,7 +65,7 @@ export function WebSpeedDuel() {
       >
         <div className="grid min-w-0 gap-10 xl:grid-cols-[minmax(280px,0.72fr)_minmax(0,1.28fr)] xl:gap-14">
           <div className="min-w-0">
-            <span className="text-[12px] uppercase tracking-wide text-white/40">
+            <span className="text-[12px] tracking-wide text-white/40">
               {t('eyebrow')}
             </span>
             <h2 className="mt-4 max-w-xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-white md:text-4xl">
