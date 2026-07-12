@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { SectionContainer } from '@/components/layout/SectionContainer';
 import { cn } from '@/lib/utils';
+import { SPEED_FEEL_GRID_TEMPLATE } from './web-speed-layout.mjs';
 
 /* =========================================================================
    WebSpeedDuel: the one external number on this entire site, and where it comes from.
@@ -76,7 +77,10 @@ export function WebSpeedDuel() {
           {/* RIGHT: his inputs, his number */}
           <div className="min-w-0 rounded-2xl bg-white/[0.04] p-6 md:p-7">
             <span className="block text-[13px] font-medium text-white/70">{t('yours')}</span>
-            <div className="mt-3 flex gap-2">
+            <div
+              className="mt-3 grid gap-2"
+              style={{ gridTemplateColumns: SPEED_FEEL_GRID_TEMPLATE }}
+            >
               {(['slow', 'ok', 'fast'] as Feel[]).map((f) => (
                 <button
                   key={f}
@@ -84,7 +88,7 @@ export function WebSpeedDuel() {
                   onClick={() => setFeel(f)}
                   aria-pressed={feel === f}
                   className={cn(
-                    'min-h-[44px] min-w-0 flex-1 rounded-xl px-3 text-[13px] font-semibold',
+                    'min-h-[44px] min-w-0 rounded-xl px-3 text-[13px] font-semibold',
                     'transition-[transform,background-color,color] duration-150 ease-out',
                     'active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e11]',
                     feel === f
