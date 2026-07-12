@@ -11,6 +11,7 @@ import {
   createTimelinePlayer,
   liveUpdateFrame,
 } from './web-demo-models.mjs';
+import { startTimelineWhenVisible } from './web-demo-visibility.mjs';
 
 const STEP_ICONS = [MessageCircle, PencilLine, RefreshCw, Check];
 
@@ -19,6 +20,7 @@ export function WebLiveUpdate() {
   const reduced = useReducedMotion();
   const [stage, setStage] = useState<string>(LIVE_UPDATE_STAGES[0]);
   const playerRef = useRef<{ replay: () => void; cancel: () => void } | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const player = createTimelinePlayer({
@@ -28,9 +30,14 @@ export function WebLiveUpdate() {
     });
 
     playerRef.current = player;
-    player.play();
+    const stopVisibility = startTimelineWhenVisible({
+      node: sectionRef.current,
+      reducedMotion: Boolean(reduced),
+      play: player.play,
+    });
 
     return () => {
+      stopVisibility();
       player.cancel();
       if (playerRef.current === player) playerRef.current = null;
     };
@@ -43,7 +50,7 @@ export function WebLiveUpdate() {
 
   return (
     <SectionContainer className="py-20 md:py-28">
-      <div className="grid items-center gap-10 lg:grid-cols-[minmax(260px,360px)_1fr] lg:gap-14">
+      <div ref={sectionRef} className="grid items-center gap-10 lg:grid-cols-[minmax(260px,360px)_1fr] lg:gap-14">
         <div>
           <span className="text-[12px] uppercase tracking-wide text-neutral-900/40">
             {t('eyebrow')}

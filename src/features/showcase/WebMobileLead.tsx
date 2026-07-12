@@ -11,6 +11,7 @@ import {
   createTimelinePlayer,
   mobileLeadFrame,
 } from './web-demo-models.mjs';
+import { startTimelineWhenVisible } from './web-demo-visibility.mjs';
 
 const STEP_KEYS = ['visitor', 'selected', 'formSent', 'leadCreated'] as const;
 
@@ -19,6 +20,7 @@ export function WebMobileLead() {
   const reduced = useReducedMotion();
   const [stage, setStage] = useState<string>(MOBILE_LEAD_STAGES[0]);
   const playerRef = useRef<{ replay: () => void; cancel: () => void } | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const player = createTimelinePlayer({
@@ -28,9 +30,14 @@ export function WebMobileLead() {
     });
 
     playerRef.current = player;
-    player.play();
+    const stopVisibility = startTimelineWhenVisible({
+      node: sectionRef.current,
+      reducedMotion: Boolean(reduced),
+      play: player.play,
+    });
 
     return () => {
+      stopVisibility();
       player.cancel();
       if (playerRef.current === player) playerRef.current = null;
     };
@@ -64,6 +71,7 @@ export function WebMobileLead() {
       </div>
 
       <div
+        ref={sectionRef}
         className="mt-10 overflow-hidden rounded-3xl p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] md:p-7"
         style={{ background: 'color-mix(in srgb, var(--brand) 8%, white)' }}
       >
