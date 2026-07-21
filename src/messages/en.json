@@ -59,11 +59,13 @@
       "description": "aiNOW builds your business website, prepares the copy, and handles future updates. There is no upfront payment, and the terms are clear before work starts."
     },
     "hero": {
-      "lead": "Your customers always see the right",
+      "owner": "Your",
+      "role": "web developer",
+      "lead": "updates your website in seconds:",
       "taglinePrefix": "A business website",
       "taglineWorks": "aiNOW keeps current",
-      "typewriterWords": "prices,services,photos,contacts,orders",
-      "typewriterPrefill": "prices",
+      "typewriterWords": "price,copy,image,service,offer",
+      "typewriterPrefill": "price",
       "ctaResults": "Get a website plan",
       "ctaCall": "Contact aiNOW",
       "commitment": "aiNOW starts work without an upfront payment. The schedule and monthly care terms are clear before you agree.",

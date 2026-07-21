@@ -21,6 +21,8 @@ const EXPECTED_KEYS = {
     'ctaCall',
     'ctaResults',
     'lead',
+    'owner',
+    'role',
     'signedBy',
     'sub',
     'taglinePrefix',
