@@ -1,0 +1,16 @@
+[00:00:02.720] Server  LOG     
+[00:00:02.721] Server  LOG       We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+[00:00:02.721] Server  LOG       The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+[00:00:02.722] Server  LOG       	- include was updated to add '.next-codex-task3/types/**/*.ts'
+[00:00:02.722] Server  LOG       	- include was updated to add '.next-codex-task3/dev/types/**/*.ts'
+[00:00:02.722] Server  LOG     
+[00:00:02.767] Server  WARN    ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[00:00:03.166] Server  LOG     ✓ Ready in 2.4s
+[00:00:21.071] Server  ERROR   (node:14288) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[00:00:32.471] Server  LOG     ○ Compiling /[locale] ...
+[00:00:40.851] Server  LOG     ✓ Compiled in 1053ms
+[00:02:02.598] Server  LOG     ✓ Compiled in 421ms
+[00:02:21.007] Server  LOG     ✓ Compiled in 732ms
+[00:02:30.541] Server  LOG     ✓ Compiled in 726ms

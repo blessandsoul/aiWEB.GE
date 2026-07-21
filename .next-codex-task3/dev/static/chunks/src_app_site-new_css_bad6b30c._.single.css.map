@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/src/app/site-new.css"],"sourcesContent":["/* Shared new-design helpers (aiNOW landing language), available site-wide.\n   font-display = Bricolage headings; eyebrow = JetBrains Mono kicker.\n   The off-white dot-grid canvas + near-black text already come from globals.css\n   + the theme, so these two helpers are all the foreground markup needs. */\n.font-display {\n  font-family: var(--font-bricolage), \"Bricolage Grotesque\",\n    \"Noto Sans Georgian\", sans-serif;\n}\n.eyebrow {\n  font-family: \"JetBrains Mono\", \"Noto Sans Georgian\", monospace;\n}\n"],"names":[],"mappings":"AAIA;;;;AAIA"}}]
+}

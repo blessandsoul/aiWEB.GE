@@ -107,7 +107,10 @@ test('timeline completes one automatic pass in exactly 7,200 ms', () => {
   player.play();
   assert.deepEqual(emitted, ['request']);
 
-  clock.advanceBy(7_199);
+  clock.advanceBy(900);
+  assert.deepEqual(emitted, ['request', 'editing']);
+
+  clock.advanceBy(6_299);
   assert.deepEqual(emitted, ['request', 'editing', 'refreshing']);
 
   clock.advanceBy(1);
@@ -127,7 +130,7 @@ test('replay cancels the old pass and resets to the first stage', () => {
   });
 
   player.play();
-  clock.advanceBy(2_400);
+  clock.advanceBy(900);
   assert.deepEqual(emitted, ['visiting', 'service-selected']);
 
   player.replay();
@@ -192,7 +195,7 @@ test('timeline exposes explicit reset and final-state callbacks for the canonica
   });
 
   player.play();
-  clock.advanceBy(2_400);
+  clock.advanceBy(900);
   player.reset();
   assert.equal(clock.pendingCount(), 0);
   assert.equal(emitted.at(-1), 'request');

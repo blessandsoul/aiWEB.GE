@@ -58,17 +58,21 @@ export function WebSpeedDuel() {
   };
 
   return (
-    <SectionContainer className="py-20 md:py-28">
+    <SectionContainer className="py-16 md:py-24 lg:py-28">
       <div
         ref={rootRef}
+        data-landing-demo="web-speed-duel"
+        data-demo-id="web-speed-duel"
+        data-demo-detail={feel}
+        aria-live="off"
         className="min-w-0 overflow-hidden rounded-[32px] bg-[#0e0e11] p-5 text-white shadow-[0_34px_80px_-48px_rgba(0,0,0,0.7)] sm:p-7 md:p-10 lg:p-12"
       >
         <div className="grid min-w-0 gap-10 xl:grid-cols-[minmax(280px,0.72fr)_minmax(0,1.28fr)] xl:gap-14">
           <div className="min-w-0">
-            <span className="text-[12px] tracking-wide text-white/40">
+            <span className="text-[12px] tracking-wide text-[#A3A3A3]">
               {t('eyebrow')}
             </span>
-            <h2 className="mt-4 max-w-xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-white md:text-4xl">
+            <h2 className="mt-4 max-w-xl text-balance font-display text-[30px] font-extrabold leading-[1.1] tracking-tight text-white md:text-[36px] md:leading-[1.12]">
               {t('heading')}
             </h2>
             <p className="mt-4 max-w-lg text-pretty text-[15px] leading-relaxed text-white/55">
@@ -89,7 +93,7 @@ export function WebSpeedDuel() {
                     aria-pressed={feel === item}
                     className={cn(
                       'min-h-[44px] min-w-0 rounded-xl px-3 text-[13px] font-semibold',
-                      'transition-[transform,background-color,color] duration-150 active:scale-[0.97]',
+                      'transition-[transform,background-color,color] duration-150 active:scale-[0.96]',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e11]',
                       feel === item
                         ? 'bg-[var(--brand)] text-[#0e0e11]'
@@ -120,7 +124,8 @@ export function WebSpeedDuel() {
             <button
               type="button"
               onClick={() => controllerRef.current?.replay()}
-              className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 text-[13px] font-bold text-[#0e0e11] transition-transform duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e11]"
+              data-demo-replay
+              className="mt-7 inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-white px-5 text-center text-[13px] font-bold text-[#0e0e11] transition-transform duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e11]"
             >
               <Ico name="solar:refresh-bold-duotone" className="h-5 w-5" />
               {t('replay')}
@@ -145,21 +150,24 @@ export function WebSpeedDuel() {
               />
             </div>
 
-            <motion.div
-              key={feel}
-              initial={reduced ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduced ? 0 : 0.25 }}
-              aria-live="polite"
-              className="mt-3 flex min-w-0 items-start gap-3 rounded-2xl bg-[var(--brand)] p-4 text-[#0e0e11] sm:items-center sm:p-5"
-            >
-              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0e0e11]/10">
-                <Ico name="solar:bolt-bold-duotone" className="h-6 w-6" />
-              </span>
-              <p className="min-w-0 text-pretty text-[13px] font-bold leading-relaxed sm:text-[14px]">
-                {t(`result_${feel}`)}
-              </p>
-            </motion.div>
+            <div className="grid min-h-[206px] sm:min-h-0">
+              <motion.div
+                data-demo-outcome
+                key={feel}
+                initial={reduced ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reduced ? 0 : 0.25 }}
+                aria-live="off"
+                className="mt-3 flex min-w-0 items-start gap-3 rounded-2xl bg-[var(--brand)] p-4 text-[#0e0e11] sm:items-center sm:p-5"
+              >
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0e0e11]/10">
+                  <Ico name="solar:bolt-bold-duotone" className="h-6 w-6" />
+                </span>
+                <p className="min-w-0 text-pretty text-[13px] font-bold leading-relaxed sm:text-[14px]">
+                  {t(`result_${feel}`)}
+                </p>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>
@@ -181,7 +189,6 @@ function BrowserCard({
   reduced: boolean;
 }) {
   const progress = feel === 'slow' ? 34 : feel === 'ok' ? 68 : 100;
-  const contentOpacity = feel === 'slow' ? 0.24 : feel === 'ok' ? 0.62 : 1;
   const highlighted = variant === 'improved';
 
   return (
@@ -196,7 +203,7 @@ function BrowserCard({
           <span className="h-2 w-2 rounded-full bg-neutral-900/10" />
           <span className="h-2 w-2 rounded-full bg-neutral-900/10" />
         </span>
-        <span className="min-w-0 flex-1 truncate text-[10px] font-semibold text-neutral-900/40">
+        <span className="min-w-0 flex-1 break-words text-[10px] font-semibold text-[#667085]">
           {label}
         </span>
         <Ico
@@ -205,19 +212,23 @@ function BrowserCard({
         />
       </div>
 
-      <div className="h-1 bg-neutral-900/[0.06]">
+      <div
+        className="h-1 bg-neutral-900/[0.06]"
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+      >
         <motion.span
           className="block h-full bg-[var(--brand)]"
-          animate={{ width: `${progress}%` }}
+          animate={{ transform: `scaleX(${progress / 100})` }}
           transition={{ duration: reduced ? 0 : 0.5, ease: 'easeOut' }}
+          style={{ transformOrigin: 'left center' }}
         />
       </div>
 
-      <motion.div
-        animate={{ opacity: contentOpacity }}
-        transition={{ duration: reduced ? 0 : 0.35 }}
-        className="min-h-[292px] p-4 sm:p-5"
-      >
+      <div className="min-h-[292px] p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3 border-b border-neutral-900/[0.06] pb-3">
           <span className="flex items-center gap-2 text-[11px] font-extrabold">
             <Ico name="solar:global-bold-duotone" className="h-4 w-4 text-[var(--brand)]" />
@@ -249,7 +260,7 @@ function BrowserCard({
         <span className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-[#0e0e11] text-white">
           <Ico name="solar:arrow-right-bold-duotone" className="h-5 w-5" />
         </span>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -19,6 +19,10 @@ test('component-consumed timelines hold their actual final state for exactly 200
     assert.equal(timing.holdMs, 2_000);
     assert.ok(timing.cycleMs >= 6_000 && timing.cycleMs <= 10_000);
     assert.equal(timing.transitions[0].at, 0);
+    assert.ok(
+      timing.transitions.length === 1 || timing.transitions[1].at <= 900,
+      `${exportName} must show its first visible state change within 900ms`,
+    );
     assert.equal(timing.transitions.at(-1).at, timing.cycleMs);
 
     const clock = createManualClock();

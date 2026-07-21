@@ -1,0 +1,42 @@
+/* [project]/src/features/home/components/landing-footer.css [app-client] (css) */
+.landing-footer {
+  --font-mono: "JetBrains Mono", "Noto Sans Georgian", monospace;
+}
+
+.landing-footer .wordmark-3d.ainow-parent .wm-prefix {
+  background: linear-gradient(130deg, #2f6bff 0%, #8b3dff 45%, #e040fb 100%);
+  -webkit-text-fill-color: transparent;
+  color: #0000;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.brand-mark {
+  letter-spacing: -.01em;
+  align-items: baseline;
+  line-height: 1;
+  display: inline-flex;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+  font-style: normal !important;
+}
+
+.brand-mark .bm-prefix {
+  color: var(--brand);
+  font-family: Space Mono, monospace;
+  font-style: italic;
+  font-weight: 700;
+  -webkit-text-fill-color: var(--brand) !important;
+  background: none !important;
+}
+
+.brand-mark .bm-mark {
+  color: #0a0a0a;
+  letter-spacing: -.02em;
+  font-family: Bricolage Grotesque, Noto Sans Georgian, sans-serif;
+  font-weight: 900;
+  -webkit-text-fill-color: #0a0a0a !important;
+  background: none !important;
+}
+
+/*# sourceMappingURL=src_features_home_components_landing-footer_css_bad6b30c._.single.css.map*/

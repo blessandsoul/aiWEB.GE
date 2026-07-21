@@ -98,24 +98,32 @@ export function WebPriceFlip() {
   const work = mode === 'once' ? ONCE_WORK : WORK;
 
   return (
-    <SectionContainer className="py-20 md:py-28">
-      <div ref={rootRef} className="mx-auto min-w-0 max-w-5xl lg:ml-0">
+    <SectionContainer className="py-16 md:py-24 lg:py-28">
+      <div
+        ref={rootRef}
+        data-landing-demo="web-price-flip"
+        data-demo-id="web-price-flip"
+        data-demo-detail={mode}
+        aria-live="off"
+        className="min-w-0"
+      >
         <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <span className="text-[12px] tracking-wide text-neutral-900/40">
+            <span className="text-[12px] tracking-wide text-[#667085]">
               {t('eyebrow')}
             </span>
-            <h2 className="mt-4 max-w-2xl text-balance font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-neutral-900 md:text-4xl">
+            <h2 className="mt-4 max-w-2xl text-balance font-display text-[30px] font-extrabold leading-[1.1] tracking-tight text-[#101828] md:text-[36px] md:leading-[1.12]">
               {t('heading')}
             </h2>
-            <p className="mt-3 max-w-xl text-pretty text-[15px] leading-relaxed text-[#525252]">
+            <p className="mt-3 max-w-xl text-pretty text-[15px] leading-relaxed text-[#4B5563]">
               {t('subtitle')}
             </p>
           </div>
           <button
             type="button"
             onClick={() => controllerRef.current?.replay()}
-            className="inline-flex min-h-11 w-fit shrink-0 items-center gap-2 rounded-full px-5 text-[13px] font-semibold text-neutral-900 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+            data-demo-replay
+            className="inline-flex min-h-11 w-fit max-w-full shrink-0 items-center gap-2 rounded-full px-5 text-center text-[13px] font-semibold text-neutral-900 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] transition-transform duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
           >
             <Ico name="solar:refresh-bold-duotone" className="h-5 w-5" />
             {t('replay')}
@@ -123,7 +131,7 @@ export function WebPriceFlip() {
         </div>
 
         {/* the switch */}
-        <div className="mt-8 inline-flex rounded-full bg-[#f0f0f0] p-1">
+        <div className="mt-8 grid w-full min-w-0 grid-cols-2 gap-1 rounded-3xl bg-[#f0f0f0] p-1 sm:inline-grid sm:w-auto sm:rounded-full">
           {(['once', 'monthly'] as Mode[]).map((m) => (
             <button
               key={m}
@@ -131,22 +139,24 @@ export function WebPriceFlip() {
               onClick={() => chooseMode(m)}
               aria-pressed={mode === m}
               className={cn(
-                'inline-flex min-h-[44px] items-center gap-2 rounded-full px-5 text-[14px] font-semibold sm:px-6',
+                'inline-flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-1 rounded-full px-3 py-2.5 text-center text-[14px] font-semibold leading-tight whitespace-normal break-words [overflow-wrap:anywhere] sm:flex-row sm:gap-2 sm:px-6',
                 'transition-[transform,background-color,color] duration-150 ease-out',
                 'active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2',
-                mode === m ? 'bg-white text-neutral-900 shadow-[0_1px_3px_rgba(0,0,0,0.08)]' : 'text-neutral-900/50',
+                mode === m ? 'bg-white text-neutral-900 shadow-[0_1px_3px_rgba(0,0,0,0.08)]' : 'text-[#4B5563]',
               )}
             >
               <Ico
                 name={m === 'once' ? 'solar:rocket-bold-duotone' : 'solar:refresh-bold-duotone'}
-                className="h-4 w-4"
+                className="h-4 w-4 shrink-0"
               />
-              {t(m)}
+              <span className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]">
+                {t(m)}
+              </span>
             </button>
           ))}
         </div>
 
-        <p className="mt-5 text-[14px] font-medium text-neutral-900/60">{t(`${mode}Label`)}</p>
+        <p className="mt-5 text-[14px] font-medium text-[#4B5563]">{t(`${mode}Label`)}</p>
 
         {/* the timeline */}
         <div className="mt-8 overflow-hidden rounded-2xl bg-[#fafafa] p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] md:p-7">
@@ -176,7 +186,7 @@ export function WebPriceFlip() {
                       {t(jobs[0].key)}
                     </span>
                   )}
-                  <span className="mt-2 block text-center text-[9px] tabular-nums text-neutral-900/25">
+                  <span className="mt-2 block text-center text-[9px] tabular-nums text-[#667085]">
                     {i % 6 === 0 ? i : ''}
                   </span>
                 </div>
@@ -184,7 +194,7 @@ export function WebPriceFlip() {
             })}
           </div>
 
-          <div className="mt-1 flex items-baseline justify-between text-[11px] tracking-wide text-neutral-900/35">
+          <div className="mt-1 flex items-baseline justify-between text-[11px] tracking-wide text-[#667085]">
             <span>{t('launch')}</span>
             <span>
               {MONTHS} {t('month')}
@@ -193,12 +203,13 @@ export function WebPriceFlip() {
         </div>
 
         <motion.div
+          data-demo-outcome
           key={mode}
           initial={reduced ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
           className={cn(
-            'mt-6 flex max-w-2xl min-w-0 items-start gap-3 rounded-2xl p-4 text-pretty text-[15px] leading-relaxed',
+            'mt-6 flex min-h-[104px] max-w-2xl min-w-0 items-start gap-3 rounded-2xl p-4 text-pretty text-[15px] leading-relaxed sm:min-h-0',
             mode === 'once' ? 'bg-neutral-900/[0.04] text-neutral-900/70' : 'bg-[var(--brand)]/10 text-neutral-900',
           )}
         >
@@ -209,7 +220,7 @@ export function WebPriceFlip() {
           <p>{t(`${mode}End`)}</p>
         </motion.div>
 
-        <p className="mt-4 text-[12px] leading-relaxed text-[#737373]">{t('note')}</p>
+        <p className="mt-4 text-[12px] leading-relaxed text-[#667085]">{t('note')}</p>
       </div>
     </SectionContainer>
   );

@@ -2,7 +2,7 @@
   "seo": {
     "contact": {
       "title": "Contact aiWEB",
-      "description": "Talk to us about a website with nothing to pay upfront, billed monthly, kept fast and kept current."
+      "description": "Contact aiNOW to discuss an aiWEB website, its scope, approval process, launch, and ongoing care."
     },
     "notFound": {
       "title": "404, page not found",
@@ -34,7 +34,11 @@
     "showcase": "See the build",
     "process": "How it works",
     "faq": "Questions",
-    "cta": "Start a site"
+    "cta": "Start a site",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "switchLanguage": "Switch language",
+    "homeLabel": "{brand} home"
   },
   "landingFooter": {
     "company": "AI NOW LLC, Tbilisi, Georgia",
@@ -58,7 +62,7 @@
       "lead": "Your customers always see the right",
       "taglinePrefix": "A business website",
       "taglineWorks": "aiNOW keeps current",
-      "typewriterWords": "prices,services,photos,contact details,offers",
+      "typewriterWords": "prices,services,photos,contacts,orders",
       "typewriterPrefill": "prices",
       "ctaResults": "Get a website plan",
       "ctaCall": "Contact aiNOW",
@@ -91,19 +95,19 @@
       "s6Desc": "When a price, service, or photo changes, aiNOW receives the request and updates the website."
     },
     "faq": {
-      "headingPre": "Important questions.",
-      "headingAccent": "Short answers.",
-      "subtitle": "Understand the price, timing, ownership, and care terms before work starts.",
-      "q1": "Why is <brand></brand> a monthly service?",
-      "a1": "After launch, a website still needs updates to prices, copy, forms, and technical settings. The monthly fee covers the care and support agreed with you in advance.",
-      "q2": "What does it cost?",
-      "a2": "The price depends on the number of pages, required features, and update frequency. aiNOW sends the exact amount with a list of work before the project starts.",
-      "q3": "What happens when the service is cancelled?",
-      "a3": "The domain and your content stay with you. Hosting, code handover, and service cancellation terms are written into the agreement in advance.",
-      "q4": "Whose name is the domain registered under?",
-      "a4": "The domain is registered to your business or another person you specify. You also receive administrator access.",
-      "q5": "Can the website be built with a site builder?",
-      "a5": "Yes. aiWEB is useful when you want aiNOW to manage the copy, design, mobile version, technical setup, and future changes.",
+      "headingPre": "Five questions",
+      "headingAccent": "before the website starts.",
+      "subtitle": "What aiWEB includes and what the business must provide.",
+      "q1": "What is <brand></brand>?",
+      "a1": "aiWEB is aiNOW's website service. aiNOW builds a fast, clear, multilingual site that shows services, prices, photos, contact details, and one main action.",
+      "q2": "Who is aiWEB for?",
+      "a2": "aiWEB fits clinics, restaurants, construction teams, beauty salons, car services, and tour operators that need a clean business site without technical noise.",
+      "q3": "What should the business give aiNOW?",
+      "a3": "The business gives the name, services, address, contacts, available photos, and one main action: call, WhatsApp, form, or booking.",
+      "q4": "Does aiWEB include SEO and schema?",
+      "a4": "Yes. aiNOW sets titles, descriptions, canonical and hreflang links, sitemap, robots.txt, and structured data that matches the visible page text.",
+      "q5": "What result does the business get?",
+      "a5": "The business gets a page customers understand quickly: what you sell, why they should trust you, and how to contact you.",
       "q6": "How long does a website take?",
       "a6": "Timing depends on the number of pages, available material, and required features. aiNOW shows you the project calendar before work starts.",
       "q7": "If customers already use Facebook and Viber, why is a website useful?",
@@ -289,6 +293,55 @@
       "outcome": "The request is ready to handle.",
       "replay": "Replay",
       "fictional": "Fictional example · number redacted"
+    },
+    "capabilities": {
+      "eyebrow": "Five capabilities",
+      "title": "What aiWEB does for your business",
+      "intro": "Build, update, and turn visits into customer actions with one clear system.",
+      "outcomeLabel": "Business result",
+      "items": {
+        "1": {
+          "title": "Builds a complete business website",
+          "description": "aiWEB brings services, prices, trust details, contact information, and the main action into one clear structure.",
+          "result": "A customer understands what you offer and how to contact you on one page."
+        },
+        "2": {
+          "title": "Turns a plain message into a website change",
+          "description": "The owner tells iAI what should change in everyday language. aiWEB shows the new version before publishing.",
+          "result": "The owner does not need to write a technical brief."
+        },
+        "3": {
+          "title": "Makes every page work on a phone",
+          "description": "Copy, buttons, and services stay easy to read and use on a small screen.",
+          "result": "Mobile customers quickly find the information and action they need."
+        },
+        "4": {
+          "title": "Delivers bookings and enquiries to the business",
+          "description": "A customer sends a short form or books a visit, and the website passes the details to the owner.",
+          "result": "The team receives a new enquiry with the contact details it needs."
+        },
+        "5": {
+          "title": "Makes price and maintenance clear",
+          "description": "Website creation and ongoing care are shown separately before work begins.",
+          "result": "The business sees what it pays for and what it receives."
+        }
+      }
+    },
+    "heroStory": {
+      "badge": "Illustrative demo",
+      "inputLabel": "The business request",
+      "input": "Change teeth cleaning to GEL 120 and make “Book a visit” the first button.",
+      "bridgeLabel": "iAI understood",
+      "bridge": "Two changes: a new price and a new main button. iAI sends the task to aiWEB.",
+      "productLabel": "aiWEB works",
+      "productAction": "Builds the updated website version before publishing.",
+      "detailOne": "Teeth cleaning changed to GEL 120",
+      "detailTwo": "“Book a visit” moved to the first button",
+      "resultLabel": "Visible result",
+      "result": "The updated version is ready to review",
+      "businessLabel": "What the business gets",
+      "businessValue": "One plain message becomes a prepared website update. Nothing is published without approval.",
+      "replay": "Replay"
     },
     "proof": {
       "url": "demo-clinic.ge",

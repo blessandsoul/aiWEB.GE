@@ -9,7 +9,6 @@ const COMPONENTS = [
   'WebMobileLead.tsx',
   'WebSpeedDuel.tsx',
   'WebPriceFlip.tsx',
-  'HeroProof.tsx',
 ];
 const BUNDLED_ICON_COMPONENTS = ['WebLiveUpdate.tsx', 'WebMobileLead.tsx'];
 const solarIconRegistry = readFileSync(
@@ -23,6 +22,18 @@ test('aiWEB stories use the canonical visible loop instead of the one-shot gate'
     assert.match(source, /createDemoLoop/u, file);
     assert.doesNotMatch(source, /startTimelineWhenVisible/u, file);
   }
+
+  const adapter = readFileSync(new URL('HeroProof.tsx', import.meta.url), 'utf8');
+  const workflow = readFileSync(
+    new URL('../home/components/HeroWorkflowStory.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(adapter, /HeroWorkflowStory/u);
+  assert.match(adapter, /mode="orchestrated"/u);
+  assert.match(workflow, /createDemoLoop/u);
+  assert.match(workflow, /threshold:\s*0\.35/u);
+  assert.match(workflow, /holdMs:\s*2_000/u);
+  assert.doesNotMatch(workflow, /startTimelineWhenVisible|setInterval/u);
 });
 
 test('speed and price samples permanently yield to visitor input', () => {
@@ -56,6 +67,39 @@ test('live update and mobile lead use only bundled Solar Ico components', () => 
   }
 });
 
+test('mobile lead Replay lives inside the demo root it controls', () => {
+  const source = readFileSync(new URL('WebMobileLead.tsx', import.meta.url), 'utf8');
+  const root = source.indexOf('ref={sectionRef}');
+  const replay = source.indexOf('data-demo-replay');
+
+  assert.ok(root >= 0, 'WebMobileLead must expose its managed demo root');
+  assert.ok(replay > root, 'Replay must be nested after the managed demo root opens');
+});
+
+test('site builder exposes one clear Replay control', () => {
+  const source = readFileSync(new URL('WebBuildLive.tsx', import.meta.url), 'utf8');
+  assert.equal(
+    source.match(/data-demo-replay/gu)?.length,
+    1,
+    'the labelled build button is the only Replay control',
+  );
+});
+
+test('hero Replay resets and restarts the shared phase sequence', () => {
+  const adapter = readFileSync(new URL('HeroProof.tsx', import.meta.url), 'utf8');
+  const workflow = readFileSync(
+    new URL('../home/components/HeroWorkflowStory.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(adapter, /demoId="aiweb-hero-story"/u);
+  assert.match(workflow, /const reset = useCallback[\s\S]*?setPhase\(0\)/u);
+  assert.match(workflow, /const play = useCallback[\s\S]*?reset\(\)[\s\S]*?setPhase\(index \+ 1\)/u);
+  assert.match(workflow, /data-demo-detail=\{`phase-\$\{phase\}`\}/u);
+  assert.match(workflow, /controllerRef\.current\?\.replay\(\)/u);
+  assert.match(workflow, /data-demo-replay="true"/u);
+});
+
 test('canonical loop repeats a 7200ms story after a 2000ms hold only while visible', () => {
   const harness = createHarness();
   const observer = harness.observers[0];
@@ -66,8 +110,11 @@ test('canonical loop repeats a 7200ms story after a 2000ms hold only while visib
 
   observer.emit(0.35, true);
   assert.deepEqual(harness.calls, ['play']);
-  assert.equal(harness.clock.pending()[0].delay, 9_200);
+  assert.equal(harness.clock.pending()[0].delay, 7_200);
 
+  harness.clock.fire(harness.clock.pending()[0].id);
+  assert.deepEqual(harness.calls, ['play']);
+  assert.equal(harness.clock.pending()[0].delay, 2_000);
   harness.clock.fire(harness.clock.pending()[0].id);
   assert.deepEqual(harness.calls, ['play', 'stop', 'reset', 'play']);
 

@@ -32,7 +32,7 @@ export const WEB_SPEED_TIMING = Object.freeze({
   holdMs: 2_000,
   transitions: Object.freeze([
     Object.freeze({ at: 0, state: 'slow' }),
-    Object.freeze({ at: 2_300, state: 'ok' }),
+    Object.freeze({ at: 900, state: 'ok' }),
     Object.freeze({ at: 7_000, state: 'fast' }),
   ]),
 });
@@ -42,6 +42,8 @@ export const WEB_PRICE_TIMING = Object.freeze({
   holdMs: 2_000,
   transitions: Object.freeze([
     Object.freeze({ at: 0, state: 'once' }),
+    Object.freeze({ at: 900, state: 'monthly' }),
+    Object.freeze({ at: 3_200, state: 'once' }),
     Object.freeze({ at: 6_400, state: 'monthly' }),
   ]),
 });
@@ -154,10 +156,13 @@ export function createTimelinePlayer({
     onStage(stages[0]);
     if (stages.length === 1) return;
 
-    const interval = duration / (stages.length - 1);
-    timers = stages.slice(1).map((stage, index) =>
-      setTimeoutFn(() => onStage(stage), interval * (index + 1)),
-    );
+    const firstChangeAt = Math.min(900, duration);
+    const remainingTransitions = stages.length - 1;
+    timers = stages.slice(1).map((stage, index) => {
+      const progress = remainingTransitions === 1 ? 1 : index / (remainingTransitions - 1);
+      const at = firstChangeAt + (duration - firstChangeAt) * progress;
+      return setTimeoutFn(() => onStage(stage), at);
+    });
   };
 
   const reset = () => {

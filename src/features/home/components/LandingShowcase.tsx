@@ -1,31 +1,35 @@
 'use client';
 
-import { WebBuildLive } from '@/features/showcase/WebBuildLive';
-import { WebLiveUpdate } from '@/features/showcase/WebLiveUpdate';
-import { WebSpeedDuel } from '@/features/showcase/WebSpeedDuel';
-import { WebMobileLead } from '@/features/showcase/WebMobileLead';
-import { WebPriceFlip } from '@/features/showcase/WebPriceFlip';
+import { useTranslations } from 'next-intl';
 
-/* =========================================================================
-   LandingShowcase: the aiWEB product slot.
+import { ProductCapabilities } from './ProductCapabilities';
 
-   Five sections, in the order a business owner needs them:
+const CAPABILITY_ICONS = [
+  'solar:global-bold-duotone',
+  'solar:pen-new-square-bold-duotone',
+  'solar:bolt-bold-duotone',
+  'solar:smartphone-bold-duotone',
+  'solar:settings-bold-duotone',
+] as const;
 
-     1. Watch a complete example site assemble and try another business type.
-     2. Watch an owner request become the version customers can actually see.
-     3. Compare a blocked page with a ready-to-use page, without invented revenue claims.
-     4. Watch a phone booking arrive as an owner lead.
-     5. Pay once or pay monthly, shown as a shape rather than argued as a price.
-   ========================================================================= */
+export function LandingShowcase(): React.ReactElement {
+  const t = useTranslations('product.capabilities');
 
-export function LandingShowcase() {
   return (
-    <div id="showcase" className="landing-showcase">
-      <WebBuildLive />
-      <WebLiveUpdate />
-      <WebSpeedDuel />
-      <WebMobileLead />
-      <WebPriceFlip />
-    </div>
+    <ProductCapabilities
+      eyebrow={t('eyebrow')}
+      title={t('title')}
+      intro={t('intro')}
+      outcomeLabel={t('outcomeLabel')}
+      items={CAPABILITY_ICONS.map((icon, index) => {
+        const item = String(index + 1);
+        return {
+          icon,
+          title: t(`items.${item}.title`),
+          description: t(`items.${item}.description`),
+          result: t(`items.${item}.result`),
+        };
+      })}
+    />
   );
 }

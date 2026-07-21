@@ -1,0 +1,43 @@
+/* [project]/src/features/home/components/landing-faq.css [app-client] (css) */
+details.faq-item {
+  cursor: pointer;
+  transition: background .32s;
+}
+
+details.faq-item .faq-body {
+  cursor: auto;
+}
+
+details.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+details.faq-item summary svg {
+  flex-shrink: 0;
+  transition: transform .38s cubic-bezier(.16, 1, .3, 1);
+}
+
+details.faq-item[open] summary svg {
+  transform: rotate(45deg);
+}
+
+details.faq-item .faq-body {
+  opacity: 0;
+  will-change: max-height, opacity;
+  max-height: 0;
+  margin-top: 0;
+  transition: max-height .42s cubic-bezier(.22, 1, .36, 1), opacity .28s, margin-top .42s cubic-bezier(.22, 1, .36, 1);
+  overflow: hidden;
+}
+
+details.faq-item.is-opening .faq-body, details.faq-item[open].is-open .faq-body {
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+/*# sourceMappingURL=src_features_home_components_landing-faq_css_bad6b30c._.single.css.map*/
