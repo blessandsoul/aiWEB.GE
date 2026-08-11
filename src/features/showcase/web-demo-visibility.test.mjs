@@ -24,16 +24,10 @@ test('aiWEB stories use the canonical visible loop instead of the one-shot gate'
   }
 
   const adapter = readFileSync(new URL('HeroProof.tsx', import.meta.url), 'utf8');
-  const workflow = readFileSync(
-    new URL('../home/components/HeroWorkflowStory.tsx', import.meta.url),
-    'utf8',
-  );
-  assert.match(adapter, /HeroWorkflowStory/u);
-  assert.match(adapter, /mode="orchestrated"/u);
-  assert.match(workflow, /createDemoLoop/u);
-  assert.match(workflow, /threshold:\s*0\.35/u);
-  assert.match(workflow, /holdMs:\s*2_000/u);
-  assert.doesNotMatch(workflow, /startTimelineWhenVisible|setInterval/u);
+  assert.match(adapter, /createDemoLoop/u);
+  assert.match(adapter, /threshold:\s*0\.35/u);
+  assert.match(adapter, /holdMs:\s*2_000/u);
+  assert.doesNotMatch(adapter, /HeroWorkflowStory|startTimelineWhenVisible|setInterval/u);
 });
 
 test('speed and price samples permanently yield to visitor input', () => {
@@ -87,17 +81,25 @@ test('site builder exposes one clear Replay control', () => {
 
 test('hero Replay resets and restarts the shared phase sequence', () => {
   const adapter = readFileSync(new URL('HeroProof.tsx', import.meta.url), 'utf8');
-  const workflow = readFileSync(
-    new URL('../home/components/HeroWorkflowStory.tsx', import.meta.url),
-    'utf8',
-  );
 
-  assert.match(adapter, /demoId="aiweb-hero-story"/u);
-  assert.match(workflow, /const reset = useCallback[\s\S]*?setPhase\(0\)/u);
-  assert.match(workflow, /const play = useCallback[\s\S]*?reset\(\)[\s\S]*?setPhase\(index \+ 1\)/u);
-  assert.match(workflow, /data-demo-detail=\{`phase-\$\{phase\}`\}/u);
-  assert.match(workflow, /controllerRef\.current\?\.replay\(\)/u);
-  assert.match(workflow, /data-demo-replay="true"/u);
+  assert.match(adapter, /data-demo-id="aiweb-hero-story"/u);
+  assert.match(adapter, /const reset = useCallback[\s\S]*?setPhase\(0\)/u);
+  assert.match(adapter, /const play = useCallback[\s\S]*?reset\(\)[\s\S]*?setPhase\(index \+ 1\)/u);
+  assert.match(adapter, /data-demo-detail=\{`phase-\$\{phase\}`\}/u);
+  assert.match(adapter, /controllerRef\.current\?\.replay\(\)/u);
+  assert.match(adapter, /data-demo-replay="true"/u);
+});
+
+test('hero composer executes the visible command instead of resetting to the first task', () => {
+  const adapter = readFileSync(new URL('HeroProof.tsx', import.meta.url), 'utf8');
+
+  assert.match(adapter, /<textarea/u);
+  assert.match(adapter, /const visibleRequest = manualRequest \?\? currentRequest/u);
+  assert.match(adapter, /const runVisibleCommand = \(\): void =>/u);
+  assert.match(adapter, /normalizedRequest\.includes\(t\('menuSale'\)\.toLocaleLowerCase\(\)\)/u);
+  assert.match(adapter, /const workingPhase = categoryIntent \? 3 : 1/u);
+  assert.match(adapter, /const completePhase = categoryIntent \? FINAL_PHASE : 2/u);
+  assert.doesNotMatch(adapter, /const startManual[\s\S]{0,120}\bplay\(\)/u);
 });
 
 test('canonical loop repeats a 7200ms story after a 2000ms hold only while visible', () => {

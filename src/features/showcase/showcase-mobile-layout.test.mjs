@@ -19,12 +19,8 @@ const heroProofSource = readFileSync(
   new URL('./HeroProof.tsx', import.meta.url),
   'utf8',
 );
-const heroWorkflowSource = readFileSync(
-  new URL('../home/components/HeroWorkflowStory.tsx', import.meta.url),
-  'utf8',
-);
 const heroWorkflowStyles = readFileSync(
-  new URL('../home/components/hero-workflow-story.css', import.meta.url),
+  new URL('./hero-web-command.css', import.meta.url),
   'utf8',
 );
 const landingShowcaseSource = readFileSync(
@@ -230,14 +226,21 @@ test('animated heading renders real spaces and removes the old fake score', () =
   assert.doesNotMatch(webBuildSource, /\bSPEED_TARGET\b|>\s*96\s*</u);
 });
 
-test('hero workflow fills narrow screens and stacks its details without overflow', () => {
-  assert.match(heroProofSource, /HeroWorkflowStory/u);
-  assert.match(heroProofSource, /mode="orchestrated"/u);
+test('hero command demo fills narrow screens without overflow', () => {
+  assert.match(heroProofSource, /createDemoLoop/u);
+  assert.match(heroProofSource, /import Image from ['"]next\/image['"]/u);
+  assert.match(heroProofSource, /\/images\/web-demo\/moisturizer-product\.webp/u);
+  assert.match(
+    heroProofSource,
+    /sizes="\(max-width: 350px\) 72px, \(max-width: 640px\) 82px, 140px"/u,
+  );
   assert.match(heroProofSource, /solar:global-bold-duotone/u);
-  assert.match(heroWorkflowSource, /data-demo-replay="true"/u);
-  assert.match(heroWorkflowStyles, /\.hero-workflow\s*\{[\s\S]*?min-width:\s*0;[\s\S]*?overflow:\s*hidden;[\s\S]*?contain:\s*inline-size;/u);
-  assert.match(heroWorkflowStyles, /@media \(max-width: 479px\)[\s\S]*?\.hero-workflow__details\s*\{[\s\S]*?grid-template-columns:\s*1fr;/u);
-  assert.match(heroWorkflowStyles, /\.hero-workflow__replay\s*\{[\s\S]*?min-width:\s*44px;[\s\S]*?min-height:\s*44px;/u);
+  assert.match(heroProofSource, /data-demo-replay="true"/u);
+  assert.match(heroWorkflowStyles, /\.web-command-demo\s*\{[\s\S]*?min-width:\s*0;[\s\S]*?overflow:\s*hidden;/u);
+  assert.match(heroWorkflowStyles, /@media \(max-width: 640px\)[\s\S]*?\.web-command-product-card\s*\{[\s\S]*?grid-template-columns:\s*82px minmax\(0, 1fr\);/u);
+  assert.match(heroWorkflowStyles, /\.web-command-product-photo\s*\{[\s\S]*?object-fit:\s*cover;/u);
+  assert.doesNotMatch(heroWorkflowStyles, /\.web-command-product-bottle/u);
+  assert.match(heroWorkflowStyles, /\.web-command-replay\s*\{[\s\S]*?min-width:\s*44px;[\s\S]*?min-height:\s*44px;/u);
 });
 
 test('landing keeps one hero demo and replaces five builders with static capabilities', () => {
@@ -251,7 +254,7 @@ test('landing keeps one hero demo and replaces five builders with static capabil
   assert.doesNotMatch(landingShowcaseSource, /data-landing-demo/u);
   assert.match(productCapabilitiesSource, /items\.map\(\(item, index\)/u);
   assert.match(productCapabilitiesSource, /data-feature-section="true"/u);
-  assert.equal(heroWorkflowSource.match(/data-landing-demo=/gu)?.length, 1);
+  assert.equal(heroProofSource.match(/data-landing-demo=/gu)?.length, 1);
 });
 
 test('price comparison segments fit the 24px-gutter shell at 320px', () => {
