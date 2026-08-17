@@ -11,6 +11,26 @@ export const PRODUCT_PAGES = {
       { id: 'analytics', name: 'Analytics', icon: 'solar:chart-2-bold-duotone', category: 'businessSystems', connection: 'custom', status: 'customSetup', dataFlow: 'analyticsMetrics' },
       { id: 'forms', name: 'Forms', icon: 'solar:letter-bold-duotone', category: 'businessSystems', connection: 'custom', status: 'customSetup', dataFlow: 'forms' },
       { id: 'domain', name: 'Domain', icon: 'solar:server-bold-duotone', category: 'development', connection: 'custom', status: 'customSetup', dataFlow: 'domainSettings' },
+      {
+        id: 'tiktok-events',
+        name: 'TikTok Pixel and Events API',
+        icon: 'solar:videocamera-record-bold-duotone',
+        category: 'contentAndAdvertising',
+        connection: 'planned',
+        status: 'planned',
+        dataFlow: 'websiteEvents',
+        machineDescription:
+          'TikTok Pixel, Events API measurement and public video embeds are planned and are not currently available.',
+        requirements: [
+          'TikTok for Business approval',
+          'Advertiser authorization and approved scopes',
+          'Eligible account and regional availability',
+        ],
+        officialSources: [
+          'https://ads.tiktok.com/help/article/events-api?lang=en',
+          'https://developers.tiktok.com/doc/embed-videos/',
+        ],
+      },
     ],
   },
   security: { status: 'public' },
