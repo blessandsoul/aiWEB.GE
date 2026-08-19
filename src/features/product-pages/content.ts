@@ -20,6 +20,7 @@ import type {
 import type {
   PricingFaqItem,
   PricingOffer,
+  PricingCareOffer,
   PricingPageCopy,
   PricingPageData,
 } from './pricing/types';
@@ -40,16 +41,6 @@ function configuredPricingMode(): PricingMode {
   return PRODUCT_PAGES.pricing.mode;
 }
 
-async function localizedWorkOutcomes(locale: ProductPageLocale): Promise<readonly string[]> {
-  const t = await getTranslations({ locale, namespace: 'product.work' });
-  const outcomes: string[] = [];
-  for (let index = 1; index <= 6; index += 1) {
-    const key = `s${index}Title`;
-    if (t.has(key)) outcomes.push(t(key));
-  }
-  return outcomes.slice(0, 5);
-}
-
 export async function getPricingContent(locale: ProductPageLocale): Promise<{
   copy: PricingPageCopy;
   data: PricingPageData;
@@ -57,46 +48,64 @@ export async function getPricingContent(locale: ProductPageLocale): Promise<{
   const t = await getTranslations({ locale, namespace: 'productPages.pricing' });
   const product = productName();
   const pricingMode = configuredPricingMode();
-  const included = await localizedWorkOutcomes(locale);
   const excluded = [t('offer.excluded1'), t('offer.excluded2'), t('offer.excluded3')];
   const actionHref = '/contact';
-  const common = {
-    id: 'written-scope',
-    name: t('offer.name', { product }),
-    summary: t('offer.summary', { product }),
-    billingLabel: t('offer.billing'),
-    included: included.length > 0 ? included : [t('offer.fallbackIncluded')],
-    excluded,
-    actionLabel: t('offer.action'),
-    actionHref,
-  } as const;
-
-  let offer: PricingOffer;
-  if (pricingMode === 'pilot') {
-    offer = {
-      ...common,
-      mode: 'pilot',
-      eligibility: [
-        t('offer.eligibility1'),
-        t('offer.eligibility2'),
-        t('offer.eligibility3'),
-      ],
-    };
-  } else if (pricingMode === 'project') {
-    offer = {
-      ...common,
-      mode: 'project',
-      estimateDrivers: [
-        t('offer.driver1'),
-        t('offer.driver2'),
-        t('offer.driver3'),
-      ],
-    };
-  } else {
+  if (pricingMode !== 'project') {
     throw new Error(
       `${product} uses pricing mode "${pricingMode}" but has no verified numeric pricing adapter.`,
     );
   }
+
+  const projectOffers: PricingOffer[] = (['site', 'shop', 'platform', 'custom'] as const).map(
+    (id) => {
+      const key = `plans.${id}` as const;
+      const priceAmount = id === 'site' ? 2000 : id === 'shop' ? 4000 : id === 'platform' ? 5000 : undefined;
+      const offer: PricingOffer = {
+        id,
+        name: t(`${key}.name`),
+        summary: t(`${key}.summary`),
+        billingLabel: t(`${key}.billing`),
+        included: [t(`${key}.included1`), t(`${key}.included2`), t(`${key}.included3`)],
+        excluded,
+        actionLabel: t('offer.action'),
+        actionHref,
+        mode: 'project',
+        estimateDrivers: [t(`${key}.scope1`), t(`${key}.scope2`), t(`${key}.scope3`)],
+        ...(priceAmount
+          ? { price: { amount: priceAmount, currency: 'GEL' as const, cadence: 'oneTime' as const } }
+          : {}),
+        ...(id === 'shop' ? { recommended: true } : {}),
+      };
+      return offer;
+    },
+  );
+
+  const careOffers: PricingCareOffer[] = (['site', 'shop', 'platform', 'custom'] as const).map(
+    (id) => {
+      const key = `care.${id}` as const;
+      const priceAmount = id === 'site' ? 250 : id === 'shop' ? 450 : id === 'platform' ? 750 : undefined;
+      return {
+        id,
+        name: t(`${key}.name`),
+        summary: t(`${key}.summary`),
+        billingLabel: t(`${key}.billing`),
+        included: [
+          t(`${key}.included1`),
+          t(`${key}.included2`),
+          t(`${key}.included3`),
+          t(`${key}.included4`),
+        ],
+        scope: [t(`${key}.scope1`), t(`${key}.scope2`), t(`${key}.scope3`)],
+        excluded: [t(`${key}.excluded1`), t(`${key}.excluded2`)],
+        actionLabel: t('offer.action'),
+        actionHref,
+        ...(priceAmount
+          ? { price: { amount: priceAmount, currency: 'GEL' as const, cadence: 'monthly' as const } }
+          : {}),
+        ...(id === 'shop' ? { recommended: true } : {}),
+      } satisfies PricingCareOffer;
+    },
+  );
 
   const faq: PricingFaqItem[] = Array.from({ length: 5 }, (_, index) => ({
     question: t(`faq.q${index + 1}`, { product }),
@@ -127,6 +136,28 @@ export async function getPricingContent(locale: ProductPageLocale): Promise<{
       timelineTitle: t('timeline.title'),
       faqEyebrow: t('faq.eyebrow'),
       faqTitle: t('faq.title'),
+      priceOnRequest: t('labels.priceOnRequest'),
+      recommendedLabel: t('labels.recommended'),
+      careEyebrow: t('care.eyebrow'),
+      careTitle: t('care.title'),
+      careIntro: t('care.intro'),
+      careNoteLabel: t('care.noteLabel'),
+      careNote: t('care.note'),
+      modernizationEyebrow: t('modernization.eyebrow'),
+      modernizationTitle: t('modernization.title'),
+      modernizationIntro: t('modernization.intro'),
+      modernizationLegacyLabel: t('modernization.legacyLabel'),
+      modernizationLegacyText: t('modernization.legacyText'),
+      modernizationModernLabel: t('modernization.modernLabel'),
+      modernizationModernText: t('modernization.modernText'),
+      modernizationAiLabel: t('modernization.aiLabel'),
+      modernizationAiText: t('modernization.aiText'),
+      modernizationSteps: [1, 2, 3].map((index) => ({
+        title: t(`modernization.step${index}Title`),
+        description: t(`modernization.step${index}Description`),
+        icon: ['solar:checklist-minimalistic-bold-duotone', 'solar:server-square-cloud-bold-duotone', 'solar:cpu-bold-duotone'][index - 1],
+      })),
+      modernizationCta: t('modernization.cta'),
       ctaEyebrow: t('cta.eyebrow'),
       ctaTitle: t('cta.title', { product }),
       ctaDescription: t('cta.description'),
@@ -135,12 +166,13 @@ export async function getPricingContent(locale: ProductPageLocale): Promise<{
     data: {
       mode: pricingMode,
       context: [
-        { label: t('context.model'), value: t(`context.${pricingMode}`) },
+        { label: t('context.model'), value: t('context.project') },
         { label: t('context.price'), value: t('context.priceValue') },
         { label: t('context.start'), value: t('context.startValue') },
         { label: t('context.support'), value: t('context.supportValue') },
       ],
-      offers: [offer],
+      offers: projectOffers,
+      care: { offers: careOffers },
       timeline: Array.from({ length: 4 }, (_, index) => ({
         title: t(`timeline.s${index + 1}Title`),
         description: t(`timeline.s${index + 1}Description`),

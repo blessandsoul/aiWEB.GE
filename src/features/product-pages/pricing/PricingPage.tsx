@@ -2,7 +2,10 @@ import { InlineLeadCta } from '../components/InlineLeadCta';
 import { ProductPageSection } from '../components/ProductPageSection';
 import { ProductPageShell } from '../components/ProductPageShell';
 import { SecondaryPageHero } from '../components/SecondaryPageHero';
+import { Ico } from '@/components/common/Ico';
 import { PricingComparison } from './PricingComparison';
+import { PricingCareCards } from './PricingCareCards';
+import { PricingModernization } from './PricingModernization';
 import { PricingOfferExplorer } from './PricingOfferExplorer';
 import type { PricingPageCopy, PricingPageData } from './types';
 
@@ -11,6 +14,9 @@ import './pricing.css';
 export function assertPricingPageData(data: PricingPageData): void {
   if (data.offers.length === 0) {
     throw new Error('A public pricing page requires at least one offer.');
+  }
+  if (data.care.offers.length === 0) {
+    throw new Error('A public pricing page requires at least one care offer.');
   }
 
   for (const offer of data.offers) {
@@ -56,8 +62,35 @@ export function PricingPage({
           eyebrow={copy.offersEyebrow}
           title={copy.offersTitle}
           intro={copy.offersIntro}
+          className="pricing-section--cards"
         >
           <PricingOfferExplorer offers={data.offers} copy={copy} />
+        </ProductPageSection>
+
+        <ProductPageSection
+          id="care"
+          eyebrow={copy.careEyebrow}
+          title={copy.careTitle}
+          intro={copy.careIntro}
+          className="pricing-section--cards"
+        >
+          <PricingCareCards offers={data.care.offers} copy={copy} />
+          <p className="pricing-care-note">
+            <Ico name="solar:info-circle-bold-duotone" aria-hidden="true" />
+            <span>
+              <strong>{copy.careNoteLabel}</strong> {copy.careNote}
+            </span>
+          </p>
+        </ProductPageSection>
+
+        <ProductPageSection
+          id="modernization"
+          eyebrow={copy.modernizationEyebrow}
+          title={copy.modernizationTitle}
+          intro={copy.modernizationIntro}
+          className="pricing-section--modernization"
+        >
+          <PricingModernization copy={copy} />
         </ProductPageSection>
 
         {data.offers.length > 1 ? (
