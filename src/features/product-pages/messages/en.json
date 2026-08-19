@@ -11,32 +11,32 @@
     "terms": "Terms"
   },
   "pricing": {
-    "seoTitle": "{product} pricing and aiWEB Care",
-    "seoDescription": "See starting prices for aiWEB business sites, online shops and platforms, plus ongoing Care plans after launch.",
+    "seoTitle": "{product} pricing and project scope",
+    "seoDescription": "See how {product} is scoped, what is included, what changes the estimate, and when payment starts.",
     "breadcrumb": "Pricing",
-    "eyebrow": "Pricing and care",
-    "title": "Know the website build and care price before you start",
-    "lead": "Choose the type of website, see a useful starting point, then ask for a written scope. aiWEB Care keeps the site maintained after launch with a separate monthly plan.",
+    "eyebrow": "Commercial terms",
+    "title": "A clear {product} scope before you pay",
+    "lead": "There is no made-up package price. aiNOW first checks your real task, writes down what is included and excluded, and gives you one price to approve.",
     "context": {
       "model": "Commercial model",
       "fixed": "Verified fixed offer",
-      "project": "One-time website project",
+      "project": "Individually scoped project",
       "retainer": "Recurring service",
       "usage": "Usage-based service",
       "hybrid": "Setup plus recurring use",
       "pilot": "Pre-launch pilot",
       "liveSubscription": "Live subscription plans",
       "price": "Price",
-      "priceValue": "Website from 2,000 GEL",
+      "priceValue": "Written before work starts",
       "start": "Work starts",
       "startValue": "After scope and price approval",
-      "support": "aiWEB Care",
-      "supportValue": "From 250 GEL per month"
+      "support": "Support",
+      "supportValue": "Defined in the proposal"
     },
     "offers": {
-      "eyebrow": "Website build",
-      "title": "Choose the project type",
-      "intro": "These are starting points for a defined scope. The written quote confirms pages, content, integrations, schedule and third-party costs."
+      "eyebrow": "Your offer",
+      "title": "One offer tied to your real task",
+      "intro": "The proposal names the result, access, integrations, approval points, timeline and ongoing costs. Anything outside it stays visible."
     },
     "labels": {
       "included": "Included",
@@ -45,9 +45,7 @@
       "drivers": "What changes the estimate",
       "allowance": "Included allowance",
       "overage": "Overage rule",
-      "setup": "Setup",
-      "priceOnRequest": "Price on request",
-      "recommended": "Recommended"
+      "setup": "Setup"
     },
     "comparison": {
       "eyebrow": "Compare",
@@ -69,136 +67,9 @@
       "eligibility1": "A responsible product owner and a clear first use case",
       "eligibility2": "Access to the systems and data needed for a safe test",
       "eligibility3": "Written approval of the pilot boundary before real-world use",
-      "action": "Request a written quote"
+      "action": "Request my scope"
     },
-    "plans": {
-      "site": {
-        "name": "Business website",
-        "summary": "A clear multi-page site for services, prices, proof and contact.",
-        "billing": "One-time, from 2,000 GEL",
-        "included1": "Home, services, contact and one clear primary action",
-        "included2": "Responsive mobile and desktop layouts",
-        "included3": "Technical SEO, forms and launch checks",
-        "scope1": "Up to 10 pages",
-        "scope2": "Target delivery in 2-3 weeks",
-        "scope3": "One main language and agreed content"
-      },
-      "shop": {
-        "name": "Online shop",
-        "summary": "Catalog, cart and checkout for selling products online.",
-        "billing": "One-time, from 4,000 GEL",
-        "included1": "Products, categories, cart and checkout form",
-        "included2": "BOG or TBC iPay, subject to provider activation",
-        "included3": "Mobile UX, core SEO and launch checks",
-        "scope1": "Agreed catalog size",
-        "scope2": "Target delivery in 3-4 weeks",
-        "scope3": "Bank and third-party fees are separate"
-      },
-      "platform": {
-        "name": "Web platform",
-        "summary": "A more complex web app, customer area or internal workflow tool.",
-        "billing": "One-time, from 5,000 GEL",
-        "included1": "User roles, screens and agreed workflows",
-        "included2": "Required APIs and an agreed data flow",
-        "included3": "Testing, handover and launch support",
-        "scope1": "Initial web app or mobile scope",
-        "scope2": "Target delivery in 4-8 weeks",
-        "scope3": "Complexity is confirmed in writing"
-      },
-      "custom": {
-        "name": "Custom project",
-        "summary": "A multi-branch, bespoke or multi-system project.",
-        "billing": "Price on request",
-        "included1": "Architecture shaped around your process",
-        "included2": "New integrations and security requirements",
-        "included3": "Written scope, schedule and handover terms",
-        "scope1": "Required functions and teams",
-        "scope2": "Delivery split into agreed stages",
-        "scope3": "Price follows the approved scope"
-      }
-    },
-  "care": {
-      "eyebrow": "aiWEB Care",
-      "title": "Website care after launch",
-      "intro": "Choose the care level for your website type. The exact scope and response window are written into the quote before work starts.",
-      "noteLabel": "Important:",
-      "note": "The first 30 days may be included with a new build. Hosting, domain, bank fees and other third-party costs are separate. New pages, features and integrations are quoted separately.",
-      "site": {
-        "name": "Site Care",
-        "summary": "Ongoing technical care for a business website.",
-        "billing": "Monthly, from 250 GEL",
-        "included1": "Monitoring and security checks",
-        "included2": "Backups and CMS updates",
-        "included3": "Small text or image edits",
-        "included4": "First-line issue diagnosis",
-        "scope1": "Agreed monthly change allowance",
-        "scope2": "Response within 1-2 business days",
-        "scope3": "One primary website",
-        "excluded1": "New pages, features or design",
-        "excluded2": "Hosting, domain and licences"
-      },
-      "shop": {
-        "name": "Shop Care",
-        "summary": "Care for your online shop and checkout.",
-        "billing": "Monthly, from 450 GEL",
-        "included1": "Checkout, forms and payment checks",
-        "included2": "Security, backups and updates",
-        "included3": "Small catalog changes",
-        "included4": "Priority issue diagnosis",
-        "scope1": "Agreed catalog and checkout scope",
-        "scope2": "Response within one business day",
-        "scope3": "One online shop",
-        "excluded1": "New feature or integration",
-        "excluded2": "Bank, hosting and other costs"
-      },
-      "platform": {
-        "name": "Platform Care",
-        "summary": "Support for a web app and internal workflows.",
-        "billing": "Monthly, from 750 GEL",
-        "included1": "Monitoring, logs and backups",
-        "included2": "Security and system updates",
-        "included3": "Small configuration changes",
-        "included4": "Issue diagnosis and recommendation",
-        "scope1": "Agreed app or internal system scope",
-        "scope2": "Response by agreed priority",
-        "scope3": "One working environment",
-        "excluded1": "New modules, screens or APIs",
-        "excluded2": "Infrastructure and external service fees"
-      },
-      "custom": {
-        "name": "Custom Care",
-        "summary": "Individual care for several systems.",
-        "billing": "Price on request",
-        "included1": "Custom monitoring and ownership",
-        "included2": "Agreed response and escalation",
-        "included3": "Several systems managed",
-        "included4": "Monthly health report",
-        "scope1": "Several sites or environments",
-        "scope2": "Individual SLA and escalation",
-        "scope3": "Scope agreed in writing",
-        "excluded1": "Building a new product",
-        "excluded2": "External service fees"
-    }
-  },
-  "modernization": {
-    "eyebrow": "Legacy modernization",
-    "title": "Move an old website to a modern stack",
-    "intro": "If a WordPress or other legacy system no longer works reliably, we can move the useful content and business processes to a modern stack. After an audit, the new system is prepared for AI, APIs and the integrations you need next.",
-    "legacyLabel": "Old website or system",
-    "legacyText": "WordPress, an outdated CMS or broken code",
-    "modernLabel": "Modern stack",
-    "modernText": "Fast, secure and ready to grow",
-    "aiLabel": "AI and integrations",
-    "aiText": "AI agents, APIs, CRM and the connections you need",
-    "step1Title": "Audit what exists",
-    "step1Description": "We identify what works, what must stay and where the risks are.",
-    "step2Title": "Plan the migration",
-    "step2Description": "We define the stack, data, timeline and rollback plan in writing.",
-    "step3Title": "Open the next layer",
-    "step3Description": "The new system is ready for AI, APIs and future technology without another rebuild.",
-    "cta": "Review my old website"
-  },
-  "timeline": {
+    "timeline": {
       "eyebrow": "From request to start",
       "title": "You know the decision before the invoice",
       "s1Title": "Fit check",
@@ -216,23 +87,23 @@
     },
     "faq": {
       "eyebrow": "Pricing questions",
-      "title": "What to know before choosing",
-      "q1": "How much does aiWEB cost?",
-      "a1": "Business websites start at 2,000 GEL, online shops at 4,000 GEL and web platforms at 5,000 GEL. The final price follows the written scope for pages, content and integrations.",
-      "q2": "What is the difference between a build and aiWEB Care?",
-      "a2": "The build is a one-time project. aiWEB Care is monthly maintenance after launch: monitoring, updates, backups and agreed small changes.",
-      "q3": "Which costs are separate?",
-      "a3": "Hosting, domain, bank fees, third-party licences and external services are separate unless the quote explicitly includes them.",
-      "q4": "What is included in aiWEB Care?",
-      "a4": "Depending on the plan, Care includes technical monitoring, backups, security updates, small text or image changes and first-line issue diagnosis.",
-      "q5": "What happens when we need a new feature?",
-      "a5": "A new page, feature or integration sits outside the existing Care scope. aiNOW shows the added price and timeline first and starts only after approval."
+      "title": "What a buyer should know",
+      "q1": "Why is there no single public price for {product}?",
+      "a1": "The cost depends on the real workflow, integrations and launch boundary. aiNOW gives you a written price before work starts instead of advertising a number that does not match your task.",
+      "q2": "Do I pay before I know the full scope?",
+      "a2": "No. The proposal names the deliverables, exclusions, timeline and price first. Payment and work begin only after you approve it.",
+      "q3": "Which costs can be separate?",
+      "a3": "Third-party licences, hosting, advertising spend, store fees and other provider charges are separate unless the proposal explicitly includes them.",
+      "q4": "What happens if the task changes?",
+      "a4": "aiNOW explains the effect on price and timing before adding the new work. The approved scope does not silently expand.",
+      "q5": "Who owns the finished work and access?",
+      "a5": "Ownership, source access, accounts and handover are written into the proposal or contract before work begins."
     },
     "cta": {
       "eyebrow": "Next step",
-      "title": "Choose the right aiWEB plan",
-      "description": "Leave your phone number and tell us what you need. We will return a written scope, schedule and exact quote.",
-      "label": "Request a written quote"
+      "title": "Get the real {product} scope",
+      "description": "Leave your phone number. aiNOW will ask only what is needed to prepare a useful proposal.",
+      "label": "Request a scope"
     }
   },
   "integrations": {

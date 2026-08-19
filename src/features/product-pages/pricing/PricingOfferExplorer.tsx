@@ -1,8 +1,11 @@
+'use client';
+
+import { useId, useState, type KeyboardEvent } from 'react';
+
 import { Ico } from '@/components/common/Ico';
 import { Link } from '@/i18n/navigation';
 
 import type { PricingOffer, PricingPageCopy } from './types';
-import { PricingDisclosure } from './PricingDisclosure';
 
 interface PricingOfferExplorerProps {
   offers: readonly PricingOffer[];
@@ -15,114 +18,164 @@ interface PricingOfferExplorerProps {
     | 'allowanceLabel'
     | 'overageLabel'
     | 'setupLabel'
-    | 'priceOnRequest'
-    | 'recommendedLabel'
   >;
 }
 
-export function formatPrice(price: NonNullable<PricingOffer['price']>): string {
-  const formatted = new Intl.NumberFormat('en-US', {
+function formatPrice(price: NonNullable<PricingOffer['price']>): string {
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: price.currency,
     maximumFractionDigits: Number.isInteger(price.amount) ? 0 : 2,
   }).format(price.amount);
-  return `${formatted} ${price.currency === 'GEL' ? '₾' : price.currency}`;
 }
 
 export function PricingOfferExplorer({
   offers,
   copy,
 }: PricingOfferExplorerProps): React.ReactElement {
-  if (offers.length === 0) {
+  const instanceId = useId();
+  const defaultOffer = offers.find((offer) => offer.recommended) ?? offers[0];
+  const [selectedId, setSelectedId] = useState(defaultOffer?.id ?? '');
+  const selected = offers.find((offer) => offer.id === selectedId) ?? defaultOffer;
+
+  if (!selected) {
     return <div className="pricing-empty" role="status" />;
   }
 
+  const panelId = `${instanceId}-pricing-panel`;
+  const selectTab = (index: number): void => {
+    const offer = offers[index];
+    if (!offer) return;
+    setSelectedId(offer.id);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`${instanceId}-${offer.id}-tab`)?.focus();
+    });
+  };
+  const handleTabKey = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ): void => {
+    let nextIndex: number | null = null;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      nextIndex = (index + 1) % offers.length;
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      nextIndex = (index - 1 + offers.length) % offers.length;
+    } else if (event.key === 'Home') {
+      nextIndex = 0;
+    } else if (event.key === 'End') {
+      nextIndex = offers.length - 1;
+    }
+    if (nextIndex === null) return;
+    event.preventDefault();
+    selectTab(nextIndex);
+  };
+
   return (
-    <div className="pricing-explorer pricing-plan-grid" data-pricing-plans>
-      {offers.map((offer) => (
-        <article
-          key={offer.id}
-          className={`pricing-plan-card pricing-plan-card--${offer.id}${offer.recommended ? ' pricing-plan-card--recommended' : ''}`}
-          data-plan-id={offer.id}
-        >
-          {offer.recommended ? (
-            <span className="pricing-plan-card__badge">
-              <Ico name="solar:star-bold-duotone" aria-hidden="true" />
-              {copy.recommendedLabel}
-            </span>
-          ) : null}
+    <div className="pricing-explorer">
+      <div
+        className="pricing-explorer__rail"
+        role="tablist"
+        aria-label={copy.includedLabel}
+      >
+        {offers.map((offer, index) => {
+          const selectedOffer = offer.id === selected.id;
+          return (
+            <button
+              key={offer.id}
+              id={`${instanceId}-${offer.id}-tab`}
+              type="button"
+              role="tab"
+              aria-selected={selectedOffer}
+              aria-controls={panelId}
+              tabIndex={selectedOffer ? 0 : -1}
+              className="pricing-explorer__tab"
+              onClick={() => setSelectedId(offer.id)}
+              onKeyDown={(event) => handleTabKey(event, index)}
+            >
+              <span>{offer.name}</span>
+              <small>{offer.billingLabel}</small>
+              {offer.recommended ? (
+                <Ico name="solar:star-bold" aria-hidden="true" />
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
 
-          <header className="pricing-plan-card__header">
-            <p>{offer.billingLabel}</p>
-            <h3>{offer.name}</h3>
-            <div className="pricing-plan-card__price">
-              {offer.price ? (
-                <>
-                  <strong>{formatPrice(offer.price)}</strong>
-                  {offer.price.unit ? <small>{offer.price.unit}</small> : null}
-                </>
-              ) : (
-                <strong className="pricing-plan-card__request-price">
-                  {copy.priceOnRequest}
-                </strong>
-              )}
+      <article
+        id={panelId}
+        role="tabpanel"
+        aria-labelledby={`${instanceId}-${selected.id}-tab`}
+        className="pricing-explorer__panel"
+      >
+        <header className="pricing-explorer__panel-header">
+          <div>
+            <p>{selected.billingLabel}</p>
+            <h3>{selected.name}</h3>
+            <span>{selected.summary}</span>
+          </div>
+          {'price' in selected && selected.price ? (
+            <div className="pricing-explorer__price">
+              <strong>{formatPrice(selected.price)}</strong>
+              {selected.price.unit ? <small>{selected.price.unit}</small> : null}
             </div>
-            <span className="pricing-plan-card__summary">{offer.summary}</span>
-          </header>
+          ) : null}
+        </header>
 
+        <div className="pricing-explorer__detail-grid">
           <OfferList
             label={copy.includedLabel}
-            values={offer.included}
+            values={selected.included}
             icon="solar:check-circle-bold-duotone"
             tone="positive"
           />
+          <OfferList
+            label={copy.excludedLabel}
+            values={selected.excluded}
+            icon="solar:close-circle-bold-duotone"
+            tone="neutral"
+          />
+        </div>
 
-          {offer.mode === 'project' ? (
-            <OfferList
-              label={copy.driversLabel}
-              values={offer.estimateDrivers}
-              icon="solar:settings-bold-duotone"
-              tone="brand"
-            />
-          ) : null}
+        {selected.mode === 'pilot' ? (
+          <OfferList
+            label={copy.eligibilityLabel}
+            values={selected.eligibility}
+            icon="solar:checklist-minimalistic-bold-duotone"
+            tone="brand"
+          />
+        ) : null}
 
-          {offer.mode === 'pilot' ? (
-            <OfferList
-              label={copy.eligibilityLabel}
-              values={offer.eligibility}
-              icon="solar:checklist-minimalistic-bold-duotone"
-              tone="brand"
-            />
-          ) : null}
+        {selected.mode === 'project' ? (
+          <OfferList
+            label={copy.driversLabel}
+            values={selected.estimateDrivers}
+            icon="solar:settings-bold-duotone"
+            tone="brand"
+          />
+        ) : null}
 
-          <PricingDisclosure label={copy.excludedLabel}>
-            <OfferList
-              label=""
-              values={offer.excluded}
-              icon="solar:close-circle-bold-duotone"
-              tone="neutral"
-            />
-          </PricingDisclosure>
+        {'allowance' in selected && selected.allowance ? (
+          <DetailLine label={copy.allowanceLabel} value={selected.allowance} />
+        ) : null}
+        {'overageRule' in selected && selected.overageRule ? (
+          <DetailLine label={copy.overageLabel} value={selected.overageRule} />
+        ) : null}
+        {'setupPrice' in selected && selected.setupPrice ? (
+          <DetailLine
+            label={copy.setupLabel}
+            value={formatPrice(selected.setupPrice)}
+          />
+        ) : null}
 
-          {'allowance' in offer && offer.allowance ? (
-            <DetailLine label={copy.allowanceLabel} value={offer.allowance} />
-          ) : null}
-          {'overageRule' in offer && offer.overageRule ? (
-            <DetailLine label={copy.overageLabel} value={offer.overageRule} />
-          ) : null}
-          {'setupPrice' in offer && offer.setupPrice ? (
-            <DetailLine label={copy.setupLabel} value={formatPrice(offer.setupPrice)} />
-          ) : null}
-
-          <div className="pricing-plan-card__action-wrap">
-            <Link
-              href={offer.actionHref ?? '/contact'}
-              className={`product-page-button pricing-plan-card__action ${offer.recommended ? 'product-page-button--primary' : 'product-page-button--secondary'}`}
-            >
-              {offer.actionLabel}
-              <Ico name="solar:arrow-right-bold-duotone" aria-hidden="true" />
-            </Link>
-          </div>
-        </article>
-      ))}
+        <Link
+          href={selected.actionHref ?? '/contact'}
+          className="product-page-button product-page-button--primary pricing-explorer__action"
+        >
+          {selected.actionLabel}
+          <Ico name="solar:arrow-right-bold-duotone" aria-hidden="true" />
+        </Link>
+      </article>
     </div>
   );
 }
@@ -140,7 +193,7 @@ function OfferList({
 }): React.ReactElement {
   return (
     <div className={`pricing-offer-list pricing-offer-list--${tone}`}>
-      {label ? <h4>{label}</h4> : null}
+      <h4>{label}</h4>
       <ul>
         {values.map((value) => (
           <li key={value}>

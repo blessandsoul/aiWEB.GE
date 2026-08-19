@@ -119,11 +119,8 @@ export function buildProductPageGraph({
     });
   }
 
-  const allOffers = pricing
-    ? [...pricing.offers, ...pricing.care.offers]
-    : [];
   const pricedOffers =
-    allOffers.flatMap((offer) =>
+    pricing?.offers.flatMap((offer) =>
       'price' in offer && offer.price
         ? [
             {
