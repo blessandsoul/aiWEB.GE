@@ -65,7 +65,7 @@ export const SITE = {
    */
   seo: {
     disambiguating:
-      "aiWEB is aiNOW's website creation and maintenance service for businesses in Georgia. aiNOW plans the site, prepares the copy, builds the mobile and desktop pages, and handles updates under an agreed care plan. It is not a DIY builder or a customer-chat service.",
+      "aiWEB is aiNOW's website creation and maintenance service for businesses in Georgia. Business websites start from 2,000 GEL, online shops from 4,000 GEL, web platforms from 5,000 GEL, and aiWEB Care from 250 GEL per month. aiNOW plans the site, prepares the copy, builds the mobile and desktop pages, and handles agreed updates after launch. It is not a DIY builder or a customer-chat service.",
     serviceType: "Business website design, build, and ongoing maintenance",
     audienceName:
       "Georgian small businesses: clinics, restaurants, construction firms, auto services, tourism, shops",
@@ -100,7 +100,7 @@ export const SITE = {
     commitment:
       "aiNOW agrees the scope, schedule, ownership, handover and care terms before work starts.",
     summary:
-      "aiWEB is aiNOW's website service for businesses in Georgia. aiNOW plans the pages, prepares the copy, builds the site, checks it with the client and handles agreed updates after launch. The business keeps control of the content, domain and approval process.",
+      "aiWEB is aiNOW's website service for businesses in Georgia. Sites start from 2,000 GEL, online shops from 4,000 GEL, platforms from 5,000 GEL and ongoing Care from 250 GEL per month. aiNOW plans the pages, prepares the copy, builds the site, checks it with the client and handles agreed updates after launch. The business keeps control of the content, domain and approval process.",
   },
 } as const;
 
