@@ -51,8 +51,8 @@ python scripts/landings.py sync --apply   # write
   in a comment. A hyphen is fine.
 - **Every number on the page traces to a source, or it is our own measured number, or it is
   deleted.** No borrowed US statistics, no vendor-blog figures.
-- **Prices only where the offer IS a fixed price** (aiapp, vibecoding). The Georgian landings are
-  lead capture; prices live on ainow.ge.
+- **aiWEB publishes starting project prices and separate aiWEB Care guidance.** The final quote
+  still fixes the approved pages, integrations, schedule and third-party costs in writing.
 - Every page must set `alternates: buildAlternates(path, locale)`. The root layout deliberately
   does not, so a page that forgets it ships with no canonical and no hreflang.
 - The design gate (`.claude/hooks/frontend_design_gate.py`) fires on every edit under `src/`.
