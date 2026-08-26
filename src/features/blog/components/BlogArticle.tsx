@@ -17,6 +17,28 @@ function formatDate(date: string, locale: string): string {
   }).format(new Date(`${date}T12:00:00Z`));
 }
 
+function getArticleCta(locale: string) {
+  if (locale === 'ka') {
+    return {
+      title: 'ეს საკითხი თქვენს საიტზეც გაქვთ მოსაგვარებელი?',
+      body: 'aiWEB ქმნის და უვლის ბიზნეს საიტს: მომსახურება, ფასები, საკონტაქტო გზა და განახლება ერთ გასაგებ სისტემაშია.',
+      action: 'გაიგეთ, რა საიტი გჭირდებათ',
+    };
+  }
+  if (locale === 'ru') {
+    return {
+      title: 'Эту задачу нужно решить и на вашем сайте?',
+      body: 'aiWEB создаёт и поддерживает бизнес-сайт: услуги, цены, контакты и обновления собраны в одной понятной системе.',
+      action: 'Узнать, какой сайт нужен',
+    };
+  }
+  return {
+    title: 'Need to solve this on your own website?',
+    body: 'aiWEB builds and maintains business websites with services, prices, contact paths and updates in one clear system.',
+    action: 'Plan your website',
+  };
+}
+
 export function BlogArticle({
   post,
   related,
@@ -26,6 +48,7 @@ export function BlogArticle({
 }) {
   const copy = getBlogCopy(post.locale);
   const headings = extractHeadings(post.content);
+  const cta = getArticleCta(post.locale);
 
   return (
     <article className="product-article" data-blog-article="true">
@@ -70,6 +93,18 @@ export function BlogArticle({
           </aside>
         ) : null}
       </div>
+
+      <section
+        className="article-business-cta"
+        data-family-shell="true"
+        data-business-cta="true"
+        data-product-bridge="true"
+        aria-labelledby="article-business-cta"
+      >
+        <h2 id="article-business-cta">{cta.title}</h2>
+        <p>{cta.body}</p>
+        <Link href="/contact">{cta.action}<Ico name="solar:arrow-right-linear" aria-hidden="true" /></Link>
+      </section>
 
       {post.sources.length > 0 ? (
         <section className="article-sources" data-family-shell="true" aria-labelledby="article-sources-heading">
