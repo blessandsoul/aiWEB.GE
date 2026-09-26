@@ -21,7 +21,8 @@ export default async function OpenGraphImage({ params }: { params: Promise<{ loc
         flexDirection: 'column',
         justifyContent: 'space-between',
         padding: '62px 72px',
-        background: `radial-gradient(circle at 12% 18%, ${SITE.brandHex}44 0, transparent 42%), #fbfcfc`,
+        backgroundImage: `radial-gradient(circle at 12% 18%, ${SITE.brandHex}44 0, transparent 42%)`,
+        backgroundColor: '#fbfcfc',
         color: '#111827',
         fontFamily: 'Arial, sans-serif',
       }}
