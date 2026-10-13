@@ -1,0 +1,18 @@
+{
+  "product":"aiWEB",
+  "sourceRevision":"094a05cf0b8a23acb33486961aad4b369d093d03",
+  "generator":"built-in image_gen",
+  "generatedAt":"2026-10-07",
+  "transparent_background":true,
+  "file":"aiweb-responsive-site-v1.png",
+  "sha256":"e671386204e51a9e19d27a079010b2f63b81ce63b1b60a03801de2b1c9fb4277",
+  "dimensions":[1536,1024],
+  "mode":"RGBA",
+  "alphaExtrema":[0,254],
+  "zeroAlphaPixels":804861,
+  "meaningfulAlphaBox":[247,101,1344,935],
+  "palette":["#1d4ed8","#2563eb","#bae6fd"],
+  "sourceSlot":"pricing-data aiWEB visualAsset; geometry unchanged",
+  "prompt":"Use case: stylized-concept. Asset type: aiWEB landing-page transparent hero satellite, product illustration. Generate a NEW premium 3D glassmorphism object in the same clean glass/chrome material language as the aiNOW website, not a flat icon. Subject: one elegant open desktop browser window showing a business website through simple empty image tiles, content lines and a single prominent action button, paired with a smaller mobile screen showing the corresponding responsive page. They form one compact, unmistakable web-design object. Palette: deep blue #1d4ed8, bright blue #2563eb, pale icy blue #bae6fd, clear glass and silver chrome. Soft realistic studio reflections and strong readable silhouettes on both white and near-black UI backgrounds. Entire objects visible with at least 10% transparent empty margin on every side; centered three-quarter perspective, contained subtle shadow. Actual fully transparent alpha background, no background rectangle, no floor plane, no opaque atmospheric haze. No letters, no words, no logos, no watermark, no metrics, no robots, no brain, no orb. Details must remain clear when displayed at 150px. This is an illustrative website mockup, not an actual product screenshot.",
+  "qa":{"visualInspection":"generated output inspected","alpha":"pixel inspected","nativeSlotFit":"pending","accepted":false,"published":false}
+}

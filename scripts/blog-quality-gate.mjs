@@ -111,6 +111,7 @@ let held = 0;
 for (const { locale, file } of files) {
   const raw = fs.readFileSync(file, 'utf8');
   const { meta, body } = frontmatter(raw);
+  if (String(meta.site ?? '').toLowerCase() !== 'aiweb') continue;
   const status = String(meta.status ?? '').toLowerCase();
   const slug = path.basename(file, '.mdx');
   const reintroduced = deletedLegacy.has(slug) && String(meta.editorial_rewrite ?? '').toLowerCase() !== 'approved';
