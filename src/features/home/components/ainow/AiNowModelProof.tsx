@@ -55,6 +55,7 @@ const copyByLocale = {
       { value: "გვერდები", label: "სტრუქტურა და ტექსტი", detail: "სერვისები, ფასები, ფოტოები და საკონტაქტო ინფორმაცია შეთანხმებულ შინაარსს შეესაბამება.", image: "/images/aiweb/pages-content-v1.png" },
       { value: "გადახედვა", label: "რეალური ეკრანები", detail: "მობილური და დესკტოპის სამუშაო ვერსიები გაშვებამდე მოწმდება.", image: "/images/aiweb/review-mobile-desktop-v1.png" },
       { value: "მოვლა", label: "შეთანხმებული განახლებები", detail: "მცირე ცვლილებები და შემოწმებები შეთანხმებული მოვლის ფარგლებში სრულდება.", image: "/images/aiweb/care-backup-v1.png" },
+      { value: "TikTok", label: "ვერიფიკაცია გავლილია", detail: "TikTok-მა aiNOW-ს ჩატის, რეკლამისა და გამოქვეყნების API-ებზე წვდომა დაუმტკიცა.", image: "/images/model-trust/tiktok-verified-glass-v1.png" },
     ],
   },
   en: {
@@ -73,6 +74,7 @@ const copyByLocale = {
       { value: "Pages", label: "Structure and content", detail: "Services, prices, visuals and contact details stay within the agreed scope.", image: "/images/aiweb/pages-content-v1.png" },
       { value: "Review", label: "Real screens", detail: "The working mobile and desktop versions are checked before launch.", image: "/images/aiweb/review-mobile-desktop-v1.png" },
       { value: "Care", label: "Agreed updates", detail: "Small changes and checks stay within the agreed care scope.", image: "/images/aiweb/care-backup-v1.png" },
+      { value: "TikTok", label: "Verification completed", detail: "TikTok approved aiNOW's access to chat, advertising and publishing APIs.", image: "/images/model-trust/tiktok-verified-glass-v1.png" },
     ],
   },
   ru: {
@@ -91,6 +93,7 @@ const copyByLocale = {
       { value: "Страницы", label: "Структура и контент", detail: "Услуги, цены, фотографии и контактные данные соответствуют согласованному содержанию.", image: "/images/aiweb/pages-content-v1.png" },
       { value: "Проверка", label: "Реальные экраны", detail: "Рабочие версии сайта для мобильных устройств и компьютера проверяются до запуска.", image: "/images/aiweb/review-mobile-desktop-v1.png" },
       { value: "Поддержка", label: "Согласованные обновления", detail: "Небольшие изменения и проверки выполняются в рамках согласованного объёма поддержки.", image: "/images/aiweb/care-backup-v1.png" },
+      { value: "TikTok", label: "Верификация пройдена", detail: "TikTok одобрил aiNOW доступ к API чатов, рекламы и публикации.", image: "/images/model-trust/tiktok-verified-glass-v1.png" },
     ],
   },
 } as const;
